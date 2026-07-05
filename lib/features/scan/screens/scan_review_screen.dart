@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../shared/data/database/app_database.dart';
 import '../../../shared/domain/receipt_line.dart';
 import '../../../shared/providers/category_list_provider.dart';
+import '../../../shared/providers/transaction_repository_provider.dart';
 import '../../../shared/theme/app_colors.dart';
 import '../../../shared/widgets/category_selector_sheet.dart';
 import '../../../shared/widgets/receipt_line_item.dart';
@@ -21,6 +24,7 @@ class ScanReviewScreen extends ConsumerStatefulWidget {
 class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
   late List<ReceiptLine> _lines;
   String? _pendingFocusLineId;
+  bool _isValidating = false;
   final _scrollController = ScrollController();
 
   static const _sheetShape = RoundedRectangleBorder(
@@ -88,6 +92,25 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
       if (c.name == name) return c.id;
     }
     return null;
+  }
+
+  Future<void> _validateReceipt() async {
+    if (_isValidating || _lines.isEmpty) return;
+    setState(() => _isValidating = true);
+    try {
+      final receiptId = const Uuid().v4();
+      await ref
+          .read(transactionRepositoryProvider)
+          .insertReceiptLines(receiptId, _lines);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reçu enregistré !')),
+      );
+      context.go('/home');
+    } catch (_) {
+      if (mounted) setState(() => _isValidating = false);
+    }
   }
 
   Future<void> _showCategorySelector(int index) async {
@@ -181,7 +204,11 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
               ],
             ),
           ),
-          _ValidateButton(enabled: lineCount > 0, lineCount: lineCount),
+          _ValidateButton(
+            enabled: lineCount > 0 && !_isValidating,
+            lineCount: lineCount,
+            onValidate: _validateReceipt,
+          ),
         ],
       ),
     );
@@ -309,10 +336,15 @@ class _AddLineButton extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ValidateButton extends StatelessWidget {
-  const _ValidateButton({required this.enabled, required this.lineCount});
+  const _ValidateButton({
+    required this.enabled,
+    required this.lineCount,
+    required this.onValidate,
+  });
 
   final bool enabled;
   final int lineCount;
+  final VoidCallback onValidate;
 
   @override
   Widget build(BuildContext context) {
@@ -327,7 +359,7 @@ class _ValidateButton extends StatelessWidget {
         width: double.infinity,
         height: 52,
         child: FilledButton(
-          onPressed: null, // Story 3.4
+          onPressed: enabled ? onValidate : null,
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.accent,
             disabledBackgroundColor: AppColors.accentDim,

@@ -7,9 +7,46 @@ import '../../../shared/providers/category_list_provider.dart';
 import '../../../shared/providers/transaction_list_provider.dart';
 import '../../../shared/theme/app_colors.dart';
 import '../../../shared/widgets/category_selector_sheet.dart';
+import '../../../shared/widgets/receipt_group_tile.dart';
 import '../../../shared/widgets/transaction_form_sheet.dart';
 import '../../../shared/widgets/transaction_tile.dart';
 import 'transaction_detail_screen.dart';
+
+// Représentation d'un item dans la liste de l'Historique
+sealed class _HistoryItem {}
+
+class _SingleTx extends _HistoryItem {
+  _SingleTx(this.transaction);
+  final Transaction transaction;
+}
+
+class _ReceiptGroup extends _HistoryItem {
+  _ReceiptGroup(this.transactions);
+  final List<Transaction> transactions;
+}
+
+List<_HistoryItem> _buildItems(List<Transaction> txs) {
+  final items = <_HistoryItem>[];
+  // Grouper par receiptId en préservant l'ordre date desc
+  final seen = <String>{};
+  final groups = <String, List<Transaction>>{};
+
+  for (final tx in txs) {
+    if (tx.receiptId == null) {
+      items.add(_SingleTx(tx));
+    } else {
+      final rid = tx.receiptId!;
+      if (!seen.contains(rid)) {
+        seen.add(rid);
+        groups[rid] = [];
+        // placeholder pour préserver l'ordre
+        items.add(_ReceiptGroup(groups[rid]!));
+      }
+      groups[rid]!.add(tx);
+    }
+  }
+  return items;
+}
 
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
@@ -34,13 +71,13 @@ class HistoryScreen extends ConsumerWidget {
       ),
       data: (transactions) {
         if (transactions.isEmpty) {
-          return _EmptyState(
-            onAddTap: () => _runFormLoop(context),
-          );
+          return _EmptyState(onAddTap: () => _runFormLoop(context));
         }
 
+        final items = _buildItems(transactions);
+
         return ListView.separated(
-          itemCount: transactions.length,
+          itemCount: items.length,
           separatorBuilder: (_, i) => const Divider(
             color: AppColors.border,
             height: 1,
@@ -48,20 +85,34 @@ class HistoryScreen extends ConsumerWidget {
             endIndent: 16,
           ),
           itemBuilder: (_, i) {
-            final tx = transactions[i];
-            final cat = categoryMap[tx.categoryId];
-            return TransactionTile(
-              transaction: tx,
-              category: cat,
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => TransactionDetailScreen(
-                    transaction: tx,
-                    category: cat,
+            final item = items[i];
+            return switch (item) {
+              _SingleTx(:final transaction) => TransactionTile(
+                transaction: transaction,
+                category: categoryMap[transaction.categoryId],
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => TransactionDetailScreen(
+                      transaction: transaction,
+                      category: categoryMap[transaction.categoryId],
+                    ),
                   ),
                 ),
               ),
-            );
+              _ReceiptGroup(:final transactions) => ReceiptGroupTile(
+                key: ValueKey(transactions.first.receiptId),
+                transactions: transactions,
+                categoryMap: categoryMap,
+                onLineTap: (tx) => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => TransactionDetailScreen(
+                      transaction: tx,
+                      category: categoryMap[tx.categoryId],
+                    ),
+                  ),
+                ),
+              ),
+            };
           },
         );
       },

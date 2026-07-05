@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
+import '../domain/receipt_line.dart';
 import 'database/app_database.dart';
 
 class TransactionRepository {
@@ -50,5 +51,34 @@ class TransactionRepository {
 
   Future<void> delete(String id) async {
     await _db.transactionDao.deleteById(id);
+  }
+
+  Future<void> insertReceiptLines(
+    String receiptId,
+    List<ReceiptLine> lines,
+  ) async {
+    if (lines.isEmpty) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final allCats = await _db.categoryDao.getAll();
+    final catByName = {for (final c in allCats) c.name: c.id};
+    final autreCatId = catByName['Autre']!;
+
+    await _db.transaction(() async {
+      for (final line in lines) {
+        final categoryId = catByName[line.category] ?? autreCatId;
+        await _db.transactionDao.insertEntry(
+          TransactionsCompanion.insert(
+            id: _uuid.v4(),
+            type: 'depense',
+            amountCents: line.amountCents,
+            categoryId: categoryId,
+            date: now,
+            createdAt: now,
+            note: Value(line.label),
+            receiptId: Value(receiptId),
+          ),
+        );
+      }
+    });
   }
 }

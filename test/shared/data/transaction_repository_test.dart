@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gestbud/shared/data/database/app_database.dart';
 import 'package:gestbud/shared/data/transaction_repository.dart';
+import 'package:gestbud/shared/domain/receipt_line.dart';
 
 void main() {
   late AppDatabase db;
@@ -214,6 +215,82 @@ void main() {
       final remaining = await db.transactionDao.getAll();
       expect(remaining.length, 1);
       expect(remaining.first.receiptId, 'rcpt-1');
+    });
+  });
+
+  group('TransactionRepository.insertReceiptLines()', () {
+    test('insère N lignes avec le même receiptId', () async {
+      final lines = [
+        ReceiptLine(label: 'Pain', amountCents: 50000, category: 'Alimentation'),
+        ReceiptLine(label: 'Savon', amountCents: 30000, category: 'Hygiène & Entretien'),
+      ];
+      const receiptId = 'receipt-test-001';
+
+      await repo.insertReceiptLines(receiptId, lines);
+
+      final txs = await db.transactionDao.getAll();
+      expect(txs.length, 2);
+      expect(txs.every((t) => t.receiptId == receiptId), isTrue);
+    });
+
+    test('chaque ligne a un id UUID v4 unique', () async {
+      final lines = [
+        ReceiptLine(label: 'A', amountCents: 10000, category: 'Alimentation'),
+        ReceiptLine(label: 'B', amountCents: 20000, category: 'Transport'),
+      ];
+      await repo.insertReceiptLines('rcpt-uuid', lines);
+
+      final txs = await db.transactionDao.getAll();
+      expect(txs.length, 2);
+      expect(txs[0].id, isNot(equals(txs[1].id)));
+      expect(txs[0].id, matches(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'));
+    });
+
+    test('type est toujours depense', () async {
+      final lines = [ReceiptLine(label: 'Article', amountCents: 5000, category: 'Alimentation')];
+      await repo.insertReceiptLines('rcpt-type', lines);
+
+      final txs = await db.transactionDao.getAll();
+      expect(txs.every((t) => t.type == 'depense'), isTrue);
+    });
+
+    test('note = label de la ligne', () async {
+      final lines = [ReceiptLine(label: 'Riz 5kg', amountCents: 200000, category: 'Alimentation')];
+      await repo.insertReceiptLines('rcpt-note', lines);
+
+      final txs = await db.transactionDao.getAll();
+      expect(txs.first.note, 'Riz 5kg');
+    });
+
+    test('catégorie inconnue → fallback vers Autre', () async {
+      final lines = [
+        ReceiptLine(label: 'Truc bizarre', amountCents: 1000, category: 'CatégorieInexistante'),
+      ];
+      await repo.insertReceiptLines('rcpt-fallback', lines);
+
+      final txs = await db.transactionDao.getAll();
+      final autreCats = await db.categoryDao.getAll();
+      final autreId = autreCats.firstWhere((c) => c.name == 'Autre').id;
+      expect(txs.first.categoryId, autreId);
+    });
+
+    test('liste vide → 0 insertions, sans erreur', () async {
+      await repo.insertReceiptLines('rcpt-empty', []);
+
+      final txs = await db.transactionDao.getAll();
+      expect(txs.isEmpty, isTrue);
+    });
+
+    test('montants préservés exactement', () async {
+      final lines = [
+        ReceiptLine(label: 'A', amountCents: 123456, category: 'Alimentation'),
+        ReceiptLine(label: 'B', amountCents: 789000, category: 'Transport'),
+      ];
+      await repo.insertReceiptLines('rcpt-amounts', lines);
+
+      final txs = await db.transactionDao.getAll();
+      final amounts = txs.map((t) => t.amountCents).toSet();
+      expect(amounts, containsAll([123456, 789000]));
     });
   });
 }
