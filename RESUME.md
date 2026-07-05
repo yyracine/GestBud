@@ -1,7 +1,7 @@
 # GestBud — Résumé de session
 
 > **À lire en début de session. À mettre à jour en fin de session.**
-> Dernière mise à jour : 2026-07-05 (session 3)
+> Dernière mise à jour : 2026-07-05 (session 4)
 
 ---
 
@@ -122,7 +122,7 @@ Typographie : Urbanist — Display 32px/800, Title 20px/600, Body 15px/400, Capt
 | Story | Titre | Statut |
 |-------|-------|--------|
 | 4.1 | Structure Tableau de bord + Sélecteur de Période | ✅ review |
-| 4.2 | Postes dépenses par catégorie + comparaison mois/mois | ⏳ À FAIRE |
+| 4.2 | Postes dépenses par catégorie + comparaison mois/mois | ✅ review |
 | 4.3 | Graphique d'évolution du Solde | ⏳ À FAIRE |
 
 ### Epic 5 — Gestion Catégories personnalisées ⏳ À FAIRE
@@ -131,28 +131,27 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 
 ---
 
-## Story 4.2 — prochaine à implémenter
+## Story 4.3 — prochaine à implémenter
 
-**Titre :** Postes de dépense par catégorie et comparaison mois/mois
+**Titre :** Graphique d'évolution du Solde
 
 **ACs clés :**
-- AC-1 : Liste triée par montant décroissant — pastille catégorie, nom, montant « − » ; somme postes = total dépenses période
-- AC-2 : Catégorie sans transaction sur la période → absente de la liste
-- AC-3 : Variation mois/mois par poste : montant ± + pourcentage + indicateur directionnel ↑↓
-- AC-4 : Mois précédent vide pour un poste → affiche « — » sans indicateur
-- AC-5 : Période change → liste et variations mises à jour < 100ms
-- AC-6 : Aucune dépense sur la période → état vide « Aucune dépense sur cette période. »
+- AC-1 : Graphique linéaire — solde cumulatif en fin de journée (23:59) pour chaque jour de la période
+- AC-2 : Jour sans transaction → solde = solde du jour précédent (ligne plate)
+- AC-3 : Solde négatif → courbe sous l'axe zéro avec repère visuel de l'axe zéro
+- AC-4 : Aucune transaction sur la période → ligne plate à 0 FCFA (pas d'état vide)
+- AC-5 : Période change → graphique recalculé < 100ms
+- AC-6 : Accessibilité — éléments ≥ 44px sur Android 5" ; description textuelle TalkBack (ex. « Solde en hausse de X FCFA sur la période »)
 
 **Nouveaux fichiers attendus :**
-- `lib/shared/providers/category_spending_provider.dart` (provider dérivé de transactionListProvider + selectedPeriodProvider)
-- `lib/shared/providers/monthly_comparison_provider.dart`
-- `lib/features/dashboard/widgets/category_spending_tile.dart`
-- Mise à jour `lib/features/dashboard/screens/dashboard_screen.dart` — remplacer section placeholder FR-18 par vraies données
+- `lib/shared/providers/daily_balance_provider.dart` (provider dérivé calculant le solde par jour)
+- `lib/features/dashboard/widgets/balance_chart.dart` (graphique fl_chart)
+- Mise à jour `lib/features/dashboard/screens/dashboard_screen.dart` — remplacer placeholder FR-19
 
-**Notes :**
-- Mois précédent = mois calendaire précédant `selectedPeriod.start` (même si plage custom)
-- Dépenses uniquement (type = 'depense'), pas les revenus
-- `selectedPeriodProvider` existe déjà (Story 4.1)
+**Notes techniques :**
+- Librairie recommandée : `fl_chart` (compatible Flutter ^3.22) — VÉRIFIER si déjà en dépendance sinon HALT (nouvelle dépendance = approbation utilisateur requise)
+- `daily_balance_provider.dart` réutilise la logique de `balance_provider` (Story 2.1) — pas de duplication
+- Solde cumulatif : solde initial (avant début période) + somme nette des transactions jour par jour
 
 ---
 
@@ -172,14 +171,19 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 | `lib/shared/providers/selected_period_provider.dart` | `NotifierProvider<DateTimeRange>` + helpers `monthRange`, `isFullMonth`, `previousMonth`, `nextMonth` |
 | `lib/features/dashboard/widgets/period_selector.dart` | ◀ [label] ▶ — ConsumerWidget, tap label → CustomPeriodSheet |
 | `lib/features/dashboard/widgets/custom_period_sheet.dart` | Bottom sheet période custom, validation inline date fin < date début |
-| `lib/features/dashboard/screens/dashboard_screen.dart` | Tableau de bord — PeriodSelector + sections placeholder (FR-18, FR-19) |
+| `lib/features/dashboard/screens/dashboard_screen.dart` | Tableau de bord — PeriodSelector + FR-18 postes réels (Story 4.2) + FR-19 placeholder |
 | `test/shared/providers/selected_period_provider_test.dart` | 21 tests (monthRange, isFullMonth, previousMonth, nextMonth, provider) |
+| `lib/shared/providers/category_spending_provider.dart` | `Provider<List<CategorySpendingEntry>>` + `computeSpendingTotals` + `buildCategorySpendingEntries` |
+| `lib/shared/providers/monthly_comparison_provider.dart` | `Provider<Map<String, int>>` — dépenses catégorie du mois précédent |
+| `lib/features/dashboard/widgets/category_spending_tile.dart` | Pastille + nom + montant − + variation ↑↓ mois/mois |
+| `test/shared/providers/category_spending_provider_test.dart` | 14 tests purs (computeSpendingTotals × 8, buildCategorySpendingEntries × 6) |
+| `test/shared/providers/monthly_comparison_provider_test.dart` | 6 tests purs (mois précédent, transition jan→déc, cumul) |
 
 ---
 
 ## Résultats des tests
 
-**Dernier run :** 90/90 tests passent · `flutter analyze` : 0 issues
+**Dernier run :** 110/110 tests passent · `flutter analyze` : 0 issues
 
 ---
 
@@ -212,6 +216,12 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 - Pas d'`intl` DateFormat pour les noms de mois (évite `initializeDateFormatting`) — utiliser map statique :
   `const _kFrMonths = ['Janvier', 'Février', ..., 'Décembre']`
 - Format JJ/MM : `d.day.toString().padLeft(2, '0')/${d.month.toString().padLeft(2, '0')}`
+
+### Tests StreamProvider (Riverpod 3.3.2) — pattern établi
+
+- `await container.read(myStreamProvider.future)` ne se complète JAMAIS si `Stream.value()` est utilisé en override — timeout 30s garanti
+- Pattern du projet : extraire la logique en **fonctions pures testables** (`computeSpendingTotals`, `buildCategorySpendingEntries`) + tests synchrones
+- Les tests d'intégration Riverpod (loading state) utilisent une vraie DB Drift in-memory (`databaseProvider.overrideWithValue(db)`)
 
 ### `DateTimeRange` Flutter SDK
 - `DateTimeRange(start, end)` de `package:flutter/material.dart` — pas de classe custom
