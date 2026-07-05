@@ -1,7 +1,7 @@
 # GestBud — Résumé de session
 
 > **À lire en début de session. À mettre à jour en fin de session.**
-> Dernière mise à jour : 2026-07-05 (session 2)
+> Dernière mise à jour : 2026-07-05 (session 3)
 
 ---
 
@@ -108,7 +108,7 @@ Typographie : Urbanist — Display 32px/800, Title 20px/600, Body 15px/400, Capt
 | 2.3 | Historique des Transactions | ✅ review |
 | 2.4 | Modification et suppression Transaction | ✅ review |
 
-### Epic 3 — Scan Reçu + Pipeline OCR 🔄 EN COURS
+### Epic 3 — Scan Reçu + Pipeline OCR ✅ COMPLET
 
 | Story | Titre | Statut |
 |-------|-------|--------|
@@ -117,9 +117,13 @@ Typographie : Urbanist — Display 32px/800, Title 20px/600, Body 15px/400, Capt
 | 3.3 | Revue et correction des Lignes du Reçu | ✅ review |
 | 3.4 | Validation globale + regroupement Historique | ✅ review |
 
-### Epic 4 — Tableau de bord analytique ⏳ À FAIRE
+### Epic 4 — Tableau de bord analytique 🔄 EN COURS
 
-Stories 4.1 (Période), 4.2 (Postes dépenses), 4.3 (Graphique solde)
+| Story | Titre | Statut |
+|-------|-------|--------|
+| 4.1 | Structure Tableau de bord + Sélecteur de Période | ✅ review |
+| 4.2 | Postes dépenses par catégorie + comparaison mois/mois | ⏳ À FAIRE |
+| 4.3 | Graphique d'évolution du Solde | ⏳ À FAIRE |
 
 ### Epic 5 — Gestion Catégories personnalisées ⏳ À FAIRE
 
@@ -127,29 +131,28 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 
 ---
 
-## Story 4.1 — prochaine à implémenter
+## Story 4.2 — prochaine à implémenter
 
-**Titre :** Structure du Tableau de bord et Sélecteur de Période
+**Titre :** Postes de dépense par catégorie et comparaison mois/mois
 
 **ACs clés :**
-- AC-1 : Onglet « Tableau de bord » — mois courant sélectionné par défaut, flèches ◀▶
-- AC-2 : Tap ◀▶ → mois précédent/suivant, contenu mis à jour immédiatement (< 100ms)
-- AC-3 : Tap label période → bottom sheet sélection custom (date début + date fin)
-- AC-4 : Date fin < date début → message inline, CTA désactivé
-- AC-5 : Validation période custom → label plage + contenu mis à jour
-- AC-6 : Mois sans transaction → états vides dans chaque section sans crash
+- AC-1 : Liste triée par montant décroissant — pastille catégorie, nom, montant « − » ; somme postes = total dépenses période
+- AC-2 : Catégorie sans transaction sur la période → absente de la liste
+- AC-3 : Variation mois/mois par poste : montant ± + pourcentage + indicateur directionnel ↑↓
+- AC-4 : Mois précédent vide pour un poste → affiche « — » sans indicateur
+- AC-5 : Période change → liste et variations mises à jour < 100ms
+- AC-6 : Aucune dépense sur la période → état vide « Aucune dépense sur cette période. »
 
 **Nouveaux fichiers attendus :**
-- `lib/features/dashboard/screens/dashboard_screen.dart`
-- `lib/features/dashboard/widgets/period_selector.dart`
-- `lib/shared/providers/selected_period_provider.dart` (`StateProvider<DateRange>`)
-- Mise à jour `lib/shared/routing/app_router.dart` — `/dashboard` branché sur `DashboardScreen`
-- Mise à jour `lib/features/dashboard/screens/home_shell.dart` si nécessaire
+- `lib/shared/providers/category_spending_provider.dart` (provider dérivé de transactionListProvider + selectedPeriodProvider)
+- `lib/shared/providers/monthly_comparison_provider.dart`
+- `lib/features/dashboard/widgets/category_spending_tile.dart`
+- Mise à jour `lib/features/dashboard/screens/dashboard_screen.dart` — remplacer section placeholder FR-18 par vraies données
 
 **Notes :**
-- `DateRange` de Flutter SDK : `DateTimeRange` ou classe custom `DateRange(start, end)` ?
-- Tous les providers du dashboard dériveront de `selectedPeriodProvider`
-- Le Sélecteur Date natif : `showDatePicker` Flutter (UX-DR10 — dates futures bloquées)
+- Mois précédent = mois calendaire précédant `selectedPeriod.start` (même si plage custom)
+- Dépenses uniquement (type = 'depense'), pas les revenus
+- `selectedPeriodProvider` existe déjà (Story 4.1)
 
 ---
 
@@ -166,12 +169,17 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 | `test/shared/domain/receipt_line_test.dart` | 17 tests unitaires |
 | `test/shared/data/transaction_repository_test.dart` | 20 tests (dont 7 sur `insertReceiptLines`) |
 | `.gitignore` | Exclusions BFF + `.claude/` |
+| `lib/shared/providers/selected_period_provider.dart` | `NotifierProvider<DateTimeRange>` + helpers `monthRange`, `isFullMonth`, `previousMonth`, `nextMonth` |
+| `lib/features/dashboard/widgets/period_selector.dart` | ◀ [label] ▶ — ConsumerWidget, tap label → CustomPeriodSheet |
+| `lib/features/dashboard/widgets/custom_period_sheet.dart` | Bottom sheet période custom, validation inline date fin < date début |
+| `lib/features/dashboard/screens/dashboard_screen.dart` | Tableau de bord — PeriodSelector + sections placeholder (FR-18, FR-19) |
+| `test/shared/providers/selected_period_provider_test.dart` | 21 tests (monthRange, isFullMonth, previousMonth, nextMonth, provider) |
 
 ---
 
 ## Résultats des tests
 
-**Dernier run :** 69/69 tests passent · `flutter analyze` : 0 issues
+**Dernier run :** 90/90 tests passent · `flutter analyze` : 0 issues
 
 ---
 
@@ -194,6 +202,21 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 ### `CategorySelectorSheet` depuis `ScanReviewScreen`
 - `_findCategoryId(name, cats)` — cherche l'ID par nom dans `categoryListProvider`
 - Résultat : `cat.name` (pas `cat.id`) stocké dans `ReceiptLine.category`
+
+### Riverpod 3.3.2 — `StateProvider` supprimé
+- `StateProvider` n'existe pas en Riverpod 3.3.2 — utiliser `NotifierProvider` avec un `Notifier<T>` simple
+- Pattern : `NotifierProvider<MyNotifier, T>(MyNotifier.new)` avec `state` mutable dans le notifier
+- Mise à jour externe : `ref.read(provider.notifier).selectRange(newValue)`
+
+### Noms de mois en français
+- Pas d'`intl` DateFormat pour les noms de mois (évite `initializeDateFormatting`) — utiliser map statique :
+  `const _kFrMonths = ['Janvier', 'Février', ..., 'Décembre']`
+- Format JJ/MM : `d.day.toString().padLeft(2, '0')/${d.month.toString().padLeft(2, '0')}`
+
+### `DateTimeRange` Flutter SDK
+- `DateTimeRange(start, end)` de `package:flutter/material.dart` — pas de classe custom
+- Dernier jour du mois : `DateTime(year, month + 1, 0)` — 0ème jour = dernier jour du mois précédent
+- Plage couvrant toute la journée de `end` : `endMs = DateTime(y, m, d, 23, 59, 59).millisecondsSinceEpoch`
 
 ---
 

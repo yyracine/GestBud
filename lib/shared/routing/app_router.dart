@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/screens/auth_phone_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/auth/screens/settings_screen.dart';
+import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/dashboard/screens/home_screen.dart';
 import '../../features/dashboard/screens/home_shell.dart';
 import '../../features/scan/screens/scan_entry_screen.dart';
@@ -51,7 +52,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/dashboard',
-            builder: (_, _) => const _DashboardPlaceholder(),
+            builder: (_, _) => const DashboardScreen(),
           ),
         ],
       ),
@@ -84,9 +85,3 @@ class RouterNotifier extends ChangeNotifier {
   }
 }
 
-class _DashboardPlaceholder extends StatelessWidget {
-  const _DashboardPlaceholder();
-
-  @override
-  Widget build(BuildContext context) => const SizedBox.shrink();
-}
