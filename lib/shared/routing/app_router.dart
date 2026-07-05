@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/screens/auth_phone_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/auth/screens/settings_screen.dart';
+import '../../features/categories/screens/category_management_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/dashboard/screens/home_screen.dart';
 import '../../features/dashboard/screens/home_shell.dart';
@@ -34,6 +35,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings',
         builder: (_, _) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/categories',
+        builder: (_, _) => const CategoryManagementScreen(),
       ),
       GoRoute(
         path: '/scan/entry',

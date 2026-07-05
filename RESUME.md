@@ -1,7 +1,7 @@
 # GestBud — Résumé de session
 
 > **À lire en début de session. À mettre à jour en fin de session.**
-> Dernière mise à jour : 2026-07-05 (session 5)
+> Dernière mise à jour : 2026-07-05 (session 6)
 
 ---
 
@@ -125,20 +125,26 @@ Typographie : Urbanist — Display 32px/800, Title 20px/600, Body 15px/400, Capt
 | 4.2 | Postes dépenses par catégorie + comparaison mois/mois | ✅ review |
 | 4.3 | Graphique d'évolution du Solde | ✅ review |
 
-### Epic 5 — Gestion Catégories personnalisées ⏳ À FAIRE
+### Epic 5 — Gestion Catégories personnalisées ⏳ En cours
 
-Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
+| Story | Titre | Statut |
+|-------|-------|--------|
+| 5.1 | Liste des catégories + accès Paramètres | ✅ review |
+| 5.2 | Création d'une catégorie personnalisée | ⏳ À faire |
+| 5.3 | Renommage et suppression | ⏳ À faire |
 
 ---
 
-## Epic 5 — prochaine à implémenter
+## Epic 5 — Story en cours : 5.2
 
-Stories 5.1 (Liste catégories), 5.2 (Création catégorie), 5.3 (Renommage/Suppression)
+**Story 5.2 :** Création d'une catégorie personnalisée — `CategoryFormSheet` bottom sheet (grille emojis + 6 pastilles couleur custom + champ nom + validation doublon). `CategoryDao.insert()`.
 
 **Notes techniques Epic 5 :**
+- `sortCategories(List<Category>)` : prédéfinies d'abord (ordre DB), custom triées par `createdAt` ASC — exportée dans `category_management_screen.dart`
 - `categoryListProvider` = seul StreamProvider sur `CategoryDao.watchAll()` (AD-11) — déjà en place
 - Gestion des catégories prédéfinies vs personnalisées (`isPredefined` flag)
-- Suppression : bloquer si catégorie utilisée dans des transactions (vérification avant suppression)
+- 6 paires couleur custom : `cat-custom-rose`, `cat-custom-teal`, `cat-custom-terracotta`, `cat-custom-olive`, `cat-custom-slate`, `cat-custom-prune` — à définir dans `CategoryUtils.pastilleColors()` pour Story 5.2
+- Story 5.3 : suppression → réaffecter transactions à « Autre » + supprimer catégorie dans `database.transaction()` atomique
 
 ---
 
@@ -168,12 +174,14 @@ Stories 5.1 (Liste catégories), 5.2 (Création catégorie), 5.3 (Renommage/Supp
 | `lib/shared/providers/daily_balance_provider.dart` | `Provider<List<DailyBalancePoint>>` + `computeDailyBalances` (carry-forward) |
 | `lib/features/dashboard/widgets/balance_chart.dart` | `LineChart` fl_chart — axe zéro, labels JJ/MM, Semantics TalkBack |
 | `test/shared/providers/daily_balance_provider_test.dart` | 12 tests purs (computeDailyBalances : solde initial, carry-forward, boundaries) |
+| `lib/features/categories/screens/category_management_screen.dart` | Liste catégories UX-DR15 — `sortCategories` pure, FAB `+`, icônes crayon/corbeille |
+| `test/features/categories/category_management_screen_test.dart` | 6 tests purs (sortCategories : vide, prédéfinies avant custom, createdAt ASC) |
 
 ---
 
 ## Résultats des tests
 
-**Dernier run :** 122/122 tests passent · `flutter analyze` : 0 issues
+**Dernier run :** 128/128 tests passent · `flutter analyze` : 0 issues
 
 ---
 

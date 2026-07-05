@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../shared/providers/session_provider.dart';
@@ -31,6 +32,21 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const SizedBox(height: 16),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+            leading: const Icon(Icons.category_outlined, color: AppColors.textPrimary),
+            title: Text(
+              'Gérer mes catégories',
+              style: GoogleFonts.urbanist(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+            onTap: () => context.push('/settings/categories'),
+          ),
+          const Divider(color: AppColors.border, height: 1, indent: 24, endIndent: 24),
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 24),
             leading: const Icon(Icons.logout, color: AppColors.danger),
