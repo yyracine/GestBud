@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../shared/providers/category_spending_provider.dart';
 import '../../../shared/theme/app_colors.dart';
+import '../widgets/balance_chart.dart';
 import '../widgets/category_spending_tile.dart';
 import '../widgets/period_selector.dart';
 
@@ -31,9 +32,9 @@ class DashboardScreen extends ConsumerWidget {
               else
                 ...entries.map((e) => CategorySpendingTile(entry: e)),
               const SizedBox(height: 24),
-              // Section FR-19 : Graphique solde (Story 4.3)
+              // Section FR-19 : Graphique solde
               _SectionHeader(title: 'Évolution du solde'),
-              const _ComingSoon(message: 'Graphique — Story 4.3'),
+              const BalanceChart(),
             ],
           ),
         ),
@@ -86,32 +87,3 @@ class _EmptySection extends StatelessWidget {
   }
 }
 
-class _ComingSoon extends StatelessWidget {
-  const _ComingSoon({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          color: AppColors.surfaceRaised,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Center(
-          child: Text(
-            message,
-            style: GoogleFonts.urbanist(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

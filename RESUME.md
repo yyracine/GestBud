@@ -1,7 +1,7 @@
 # GestBud — Résumé de session
 
 > **À lire en début de session. À mettre à jour en fin de session.**
-> Dernière mise à jour : 2026-07-05 (session 4)
+> Dernière mise à jour : 2026-07-05 (session 5)
 
 ---
 
@@ -117,13 +117,13 @@ Typographie : Urbanist — Display 32px/800, Title 20px/600, Body 15px/400, Capt
 | 3.3 | Revue et correction des Lignes du Reçu | ✅ review |
 | 3.4 | Validation globale + regroupement Historique | ✅ review |
 
-### Epic 4 — Tableau de bord analytique 🔄 EN COURS
+### Epic 4 — Tableau de bord analytique ✅ COMPLET
 
 | Story | Titre | Statut |
 |-------|-------|--------|
 | 4.1 | Structure Tableau de bord + Sélecteur de Période | ✅ review |
 | 4.2 | Postes dépenses par catégorie + comparaison mois/mois | ✅ review |
-| 4.3 | Graphique d'évolution du Solde | ⏳ À FAIRE |
+| 4.3 | Graphique d'évolution du Solde | ✅ review |
 
 ### Epic 5 — Gestion Catégories personnalisées ⏳ À FAIRE
 
@@ -131,27 +131,14 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 
 ---
 
-## Story 4.3 — prochaine à implémenter
+## Epic 5 — prochaine à implémenter
 
-**Titre :** Graphique d'évolution du Solde
+Stories 5.1 (Liste catégories), 5.2 (Création catégorie), 5.3 (Renommage/Suppression)
 
-**ACs clés :**
-- AC-1 : Graphique linéaire — solde cumulatif en fin de journée (23:59) pour chaque jour de la période
-- AC-2 : Jour sans transaction → solde = solde du jour précédent (ligne plate)
-- AC-3 : Solde négatif → courbe sous l'axe zéro avec repère visuel de l'axe zéro
-- AC-4 : Aucune transaction sur la période → ligne plate à 0 FCFA (pas d'état vide)
-- AC-5 : Période change → graphique recalculé < 100ms
-- AC-6 : Accessibilité — éléments ≥ 44px sur Android 5" ; description textuelle TalkBack (ex. « Solde en hausse de X FCFA sur la période »)
-
-**Nouveaux fichiers attendus :**
-- `lib/shared/providers/daily_balance_provider.dart` (provider dérivé calculant le solde par jour)
-- `lib/features/dashboard/widgets/balance_chart.dart` (graphique fl_chart)
-- Mise à jour `lib/features/dashboard/screens/dashboard_screen.dart` — remplacer placeholder FR-19
-
-**Notes techniques :**
-- Librairie recommandée : `fl_chart` (compatible Flutter ^3.22) — VÉRIFIER si déjà en dépendance sinon HALT (nouvelle dépendance = approbation utilisateur requise)
-- `daily_balance_provider.dart` réutilise la logique de `balance_provider` (Story 2.1) — pas de duplication
-- Solde cumulatif : solde initial (avant début période) + somme nette des transactions jour par jour
+**Notes techniques Epic 5 :**
+- `categoryListProvider` = seul StreamProvider sur `CategoryDao.watchAll()` (AD-11) — déjà en place
+- Gestion des catégories prédéfinies vs personnalisées (`isPredefined` flag)
+- Suppression : bloquer si catégorie utilisée dans des transactions (vérification avant suppression)
 
 ---
 
@@ -178,12 +165,15 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 | `lib/features/dashboard/widgets/category_spending_tile.dart` | Pastille + nom + montant − + variation ↑↓ mois/mois |
 | `test/shared/providers/category_spending_provider_test.dart` | 14 tests purs (computeSpendingTotals × 8, buildCategorySpendingEntries × 6) |
 | `test/shared/providers/monthly_comparison_provider_test.dart` | 6 tests purs (mois précédent, transition jan→déc, cumul) |
+| `lib/shared/providers/daily_balance_provider.dart` | `Provider<List<DailyBalancePoint>>` + `computeDailyBalances` (carry-forward) |
+| `lib/features/dashboard/widgets/balance_chart.dart` | `LineChart` fl_chart — axe zéro, labels JJ/MM, Semantics TalkBack |
+| `test/shared/providers/daily_balance_provider_test.dart` | 12 tests purs (computeDailyBalances : solde initial, carry-forward, boundaries) |
 
 ---
 
 ## Résultats des tests
 
-**Dernier run :** 110/110 tests passent · `flutter analyze` : 0 issues
+**Dernier run :** 122/122 tests passent · `flutter analyze` : 0 issues
 
 ---
 
@@ -216,6 +206,13 @@ Stories 5.1 (Liste), 5.2 (Création), 5.3 (Renommage/Suppression)
 - Pas d'`intl` DateFormat pour les noms de mois (évite `initializeDateFormatting`) — utiliser map statique :
   `const _kFrMonths = ['Janvier', 'Février', ..., 'Décembre']`
 - Format JJ/MM : `d.day.toString().padLeft(2, '0')/${d.month.toString().padLeft(2, '0')}`
+
+### fl_chart 0.69.2 — API correcte
+
+- `SideTitleWidget(axisSide: meta.axisSide, child: ...)` — PAS `meta: meta` (non encore migré)
+- `SideTitles(showTitles: false)` — PAS `show: false`
+- `withValues(alpha: x)` à la place de `withOpacity(x)` (deprecated Flutter 3.22+)
+- `getTooltipColor: (_) => color` sur `LineTouchTooltipData` (pas `tooltipBgColor`)
 
 ### Tests StreamProvider (Riverpod 3.3.2) — pattern établi
 
