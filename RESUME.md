@@ -1,7 +1,7 @@
 # GestBud — Résumé de session
 
 > **À lire en début de session. À mettre à jour en fin de session.**
-> Dernière mise à jour : 2026-07-05 (session 6)
+> Dernière mise à jour : 2026-07-05 (session 8)
 
 ---
 
@@ -125,19 +125,19 @@ Typographie : Urbanist — Display 32px/800, Title 20px/600, Body 15px/400, Capt
 | 4.2 | Postes dépenses par catégorie + comparaison mois/mois | ✅ review |
 | 4.3 | Graphique d'évolution du Solde | ✅ review |
 
-### Epic 5 — Gestion Catégories personnalisées ⏳ En cours
+### Epic 5 — Gestion Catégories personnalisées ✅ COMPLET
 
 | Story | Titre | Statut |
 |-------|-------|--------|
 | 5.1 | Liste des catégories + accès Paramètres | ✅ review |
-| 5.2 | Création d'une catégorie personnalisée | ⏳ À faire |
-| 5.3 | Renommage et suppression | ⏳ À faire |
+| 5.2 | Création d'une catégorie personnalisée | ✅ review |
+| 5.3 | Renommage et suppression | ✅ review |
 
 ---
 
-## Epic 5 — Story en cours : 5.2
+## Epic 5 — COMPLET ✅
 
-**Story 5.2 :** Création d'une catégorie personnalisée — `CategoryFormSheet` bottom sheet (grille emojis + 6 pastilles couleur custom + champ nom + validation doublon). `CategoryDao.insert()`.
+Epic 5 entièrement terminé. Stories 5.1 · 5.2 · 5.3 toutes en statut review.
 
 **Notes techniques Epic 5 :**
 - `sortCategories(List<Category>)` : prédéfinies d'abord (ordre DB), custom triées par `createdAt` ASC — exportée dans `category_management_screen.dart`
@@ -174,14 +174,20 @@ Typographie : Urbanist — Display 32px/800, Title 20px/600, Body 15px/400, Capt
 | `lib/shared/providers/daily_balance_provider.dart` | `Provider<List<DailyBalancePoint>>` + `computeDailyBalances` (carry-forward) |
 | `lib/features/dashboard/widgets/balance_chart.dart` | `LineChart` fl_chart — axe zéro, labels JJ/MM, Semantics TalkBack |
 | `test/shared/providers/daily_balance_provider_test.dart` | 12 tests purs (computeDailyBalances : solde initial, carry-forward, boundaries) |
-| `lib/features/categories/screens/category_management_screen.dart` | Liste catégories UX-DR15 — `sortCategories` pure, FAB `+`, icônes crayon/corbeille |
+| `lib/features/categories/screens/category_management_screen.dart` | Liste catégories UX-DR15 — `sortCategories` pure, FAB `+` → `CategoryFormSheet`, icônes crayon/corbeille |
 | `test/features/categories/category_management_screen_test.dart` | 6 tests purs (sortCategories : vide, prédéfinies avant custom, createdAt ASC) |
+| `lib/features/categories/widgets/category_form_sheet.dart` | Bottom sheet création catégorie — grille 16 icônes, 6 couleurs custom, champ nom, validation doublon, `CategoryDao.insertCategory()` |
+| `test/features/categories/category_form_sheet_test.dart` | 7 tests purs (isDuplicate : vide, exact, casse, trim, prédéfinie) |
+| `lib/shared/utils/category_utils.dart` | +6 paires couleur custom + 16 icônes picker (Story 5.2) |
+| `lib/shared/data/database/daos/category_dao.dart` | +`insertCategory()` · `findByName()` · `updateCategory()` · `deleteCategory()` |
+| `lib/shared/data/database/daos/transaction_dao.dart` | +`reassignToCategory()` (Story 5.3) |
+| `lib/shared/data/database/app_database.dart` | +`deleteCustomCategoryWithReassign()` — atomique FK-safe (Story 5.3) |
 
 ---
 
 ## Résultats des tests
 
-**Dernier run :** 128/128 tests passent · `flutter analyze` : 0 issues
+**Dernier run :** 138/138 tests passent · `flutter analyze` : 0 issues
 
 ---
 
@@ -232,6 +238,11 @@ Typographie : Urbanist — Display 32px/800, Title 20px/600, Body 15px/400, Capt
 - `DateTimeRange(start, end)` de `package:flutter/material.dart` — pas de classe custom
 - Dernier jour du mois : `DateTime(year, month + 1, 0)` — 0ème jour = dernier jour du mois précédent
 - Plage couvrant toute la journée de `end` : `endMs = DateTime(y, m, d, 23, 59, 59).millisecondsSinceEpoch`
+
+### Suppression atomique catégorie (Story 5.3)
+- `AppDatabase.deleteCustomCategoryWithReassign(id)` via `transaction()` — reassign d'abord, delete ensuite (obligatoire car `PRAGMA foreign_keys = ON`)
+- `isDuplicate(name, existing, {String? excludeId})` — paramètre optionnel rétrocompatible ; en mode édition passer `excludeId: widget.initial?.id`
+- `_CategoryTile` → `ConsumerWidget` pour accéder à `ref` dans le handler async de suppression
 
 ---
 

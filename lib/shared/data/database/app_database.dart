@@ -71,6 +71,15 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
+  Future<void> deleteCustomCategoryWithReassign(String categoryId) async {
+    await transaction(() async {
+      final autre = await categoryDao.findByName('Autre');
+      if (autre == null) return;
+      await transactionDao.reassignToCategory(categoryId, autre.id);
+      await categoryDao.deleteCategory(categoryId);
+    });
+  }
+
   Future<void> seedPredefinedCategories() async {
     // UUID v5 déterministe (namespace OID + nom) → insertOrIgnore idempotent
     const uuidGen = Uuid();

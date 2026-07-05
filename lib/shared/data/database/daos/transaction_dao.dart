@@ -22,4 +22,9 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
 
   Future<int> deleteById(String id) =>
       (delete(transactions)..where((t) => t.id.equals(id))).go();
+
+  Future<void> reassignToCategory(String fromId, String toId) async {
+    await (update(transactions)..where((t) => t.categoryId.equals(fromId)))
+        .write(TransactionsCompanion(categoryId: Value(toId)));
+  }
 }
