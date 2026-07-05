@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>UX Design Validation: GestBud</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <header class="report-header">
+      <div class="title">
+        <h1>GestBud — UX Design Validation Report</h1>
+        <div class="subtitle">_bmad-output/planning-artifacts/ux-designs/ux-GestBud-2026-06-30/</div>
+      </div>
+    </header>
+
+    <div class="synthesis">
+      <p>La paire de spines est solide sur ses fondamentaux : les trois flows clés (UJ-1/2/3) sont pleinement réalisés avec protagoniste nommé, étapes numérotées et beat climax ; tous les tokens résolvent ; la discipline d'héritage (sources, noms de composants, glossaire) est propre. Le gap critique structurel est la **Gestion Catégories** (FR-13–FR-16) : une fonctionnalité MVP entièrement scopée n'a aucune spec visuelle ni comportementale dans aucun des deux fichiers — un développeur n'a rien pour construire le CRUD de catégories.</p>
+      <p>Les deux lenses additionnelles déplacent sensiblement le tableau. L'accessibilité relève deux problèmes critiques pour une app financière grand public sur Android d'entrée de gamme : deux pastilles de catégorie échouent le contraste WCAG AA, et la couleur est l'unique signal dépense/revenu partout dans l'app — sans repère non-coloré, ce qui exclut les utilisateurs daltoniens de leurs propres finances. Le microcopy review confirme que les règles de voix sont saines mais que plusieurs moments utilisateurs réels (confirmation de suppression de ligne de reçu, validation de période invalide, refus de permission caméra, gestion de catégories) n'ont aucun texte spécifié — un vide que l'implémenteur devra combler sans guidance.</p>
+    </div>
+
+    <div class="dimension-summary">
+      <div class="dim-card">
+        <div class="dim-name">1. Flow coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">Strong</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">2. Token completeness</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">Strong</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">3. Component coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-thin)">Thin</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">4. State coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">Adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">6. Bloat &amp; overspecification</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">Strong</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">7. Inheritance discipline</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">Strong</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">8. Shape fit</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">Strong</div>
+      </div>
+    </div>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>1. Flow coverage</h2>
+          <span class="verdict-pill verdict-strong">Strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>UJ-1/UJ-2/UJ-3 du PRD sont mappés 1:1 sur Flow 1/2/3 dans EXPERIENCE.md, chacun avec protagoniste nommé (Aminata), étapes numérotées, un beat Climax explicite, et des libellés UJ verbatim.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Aucun Key Flow ni UJ ne couvre la Gestion Catégories (FR-13–FR-16)</h3>
+              <span class="finding-location">EXPERIENCE.md — IA + Key Flows</span>
+            </header>
+            <div class="finding-note">Fonctionnalité MVP entièrement scopée (création/renommage/suppression, validation d'unicité, cascade, réassignation vers « Autre ») sans aucune trace comportementale dans EXPERIENCE.md.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter un Key Flow court, ou a minima des lignes Component/State Patterns dédiées.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Flow 2 (saisie manuelle) n'a pas de chemin d'échec</h3>
+              <span class="finding-location">EXPERIENCE.md lignes 156–169 ; State Patterns lignes 79–96</span>
+            </header>
+            <div class="finding-note">FR-5 implique un état de validation (montant nul/négatif) jamais documenté.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter « Cas d'erreur : montant à 0 → CTA Enregistrer désactivé » + une ligne State Patterns correspondante.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">Flow 3 sans cas tableau de bord totalement vide (jamais aucune transaction)</h3>
+              <span class="finding-location">EXPERIENCE.md Flow 3</span>
+            </header>
+            <div class="finding-note">Distinct du cas « mois sans données » déjà couvert. Gap mineur, le PRD ne définit pas non plus ce cas.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Optionnel — préciser si ce cas diffère de « mois sans données ».</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>2. Token completeness</h2>
+          <span class="verdict-pill verdict-strong">Strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Tous les tokens du frontmatter YAML de DESIGN.md résolvent, et toute référence <code>{path.to.token}</code> dans les deux fichiers pointe vers une clé définie. Les 22 tokens couleur (dont 11 paires catégorie) portent toutes une valeur hex.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">DESIGN.md ne restate jamais de ratio de contraste numérique</h3>
+              <span class="finding-location">DESIGN.md Colors ; cf. EXPERIENCE.md ligne 110</span>
+            </header>
+            <div class="finding-note">Le seuil 4.5:1 ne vit que dans EXPERIENCE.md Accessibility Floor et le PRD, alors que DESIGN.md est censé posséder le contraste visuel.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une phrase confirmant (ou flaggant comme non vérifiés) les ratios des paires text-secondary/bg et text-secondary/surface.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">Placeholder <code>{nom}</code> visuellement ambigu avec la syntaxe de référence de token</h3>
+              <span class="finding-location">DESIGN.md lignes 87–90, 209</span>
+            </header>
+            <div class="finding-note">Inoffensif mais ressemble à une référence cassée au premier coup d'œil.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Une note d'une ligne distinguant ce placeholder de la convention <code>{path.to.token}</code>.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details open>
+        <summary>
+          <h2>3. Component coverage</h2>
+          <span class="verdict-pill verdict-thin">Thin</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Plusieurs lignes Component Patterns d'EXPERIENCE.md n'ont pas de spec visuelle correspondante dans DESIGN.md, et inversement. Le gap le plus sérieux concerne une surface entière, Gestion Catégories, absente des deux fichiers.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">Critical</span>
+              <h3 class="finding-title">Aucune spec visuelle ni comportementale pour la surface Gestion Catégories</h3>
+              <span class="finding-location">DESIGN.md + EXPERIENCE.md (absent)</span>
+            </header>
+            <div class="finding-note">FR-13–FR-16 entièrement scopées (validation d'unicité, cascade rename, confirmation de suppression, réassignation à « Autre ») mais zéro composant nommé.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter au minimum : ligne de catégorie en liste, champ création/renommage, dialogue de confirmation de suppression — dans les deux fichiers.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Sélecteur Catégorie sans spec visuelle DESIGN.md</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 67</span>
+            </header>
+            <div class="finding-note">DESIGN.md spec uniquement la pastille (cercle 40px), pas le bottom sheet liste lui-même.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une entrée DESIGN.md.Components, ou la rattacher explicitement au spec générique « Bottom sheet ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Sélecteur Date sans spec visuelle</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 68</span>
+            </header>
+            <div class="finding-note">Aucune ligne, aucune référence de token. Le wrapper bottom sheet du date-picker natif n'est pas spécifié.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une ligne DESIGN.md.Components, même minimale (« hérite du spec Bottom sheet de base »).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">En-tête sticky Reçu, Entrée Reçu groupé, Sélecteur de Période sans spec visuelle</h3>
+              <span class="finding-location">EXPERIENCE.md lignes 70, 73, 74</span>
+            </header>
+            <div class="finding-note">Typographie, fond, positionnement sticky, traitement du chevron et de l'état développé non spécifiés visuellement.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une courte entrée Components par composant.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title"><code>nav-bar</code> sans ligne Component Patterns comportementale</h3>
+              <span class="finding-location">DESIGN.md components.nav-bar ; EXPERIENCE.md (absent)</span>
+            </header>
+            <div class="finding-note">Existe comme token visuel mais jamais décrit comportementalement (changement d'onglet, persistance d'état actif, interaction avec le FAB).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une ligne Component Patterns pour la bottom tab bar.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title"><code>input</code> sans ligne comportementale dédiée</h3>
+              <span class="finding-location">DESIGN.md components.input</span>
+            </header>
+            <div class="finding-note">Comportement dispersé entre Bottom sheet Saisie manuelle et Ligne de Reçu — défendable mais non déclaré comme choix d'héritage délibéré.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Optionnel — noter le choix de consolidation explicitement.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details open>
+        <summary>
+          <h2>4. State coverage</h2>
+          <span class="verdict-pill verdict-adequate">Adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Auth, Accueil, Scan — Revue, Historique et Tableau de bord ont une couverture d'état approfondie. Les gaps se concentrent sur Gestion Catégories, Paramètres, et quelques états de permission/édition.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">Critical</span>
+              <h3 class="finding-title">Gestion Catégories : zéro couverture State Patterns</h3>
+              <span class="finding-location">EXPERIENCE.md IA ligne 35</span>
+            </header>
+            <div class="finding-note">Aucun état vide, aucune erreur de nom dupliqué (FR-14), aucune confirmation de suppression (FR-16), aucun état « catégorie prédéfinie — action bloquée » (FR-15/16).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter 3–4 lignes State Patterns pour cette surface.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Paramètres : zéro couverture State Patterns</h3>
+              <span class="finding-location">EXPERIENCE.md IA ligne 36</span>
+            </header>
+            <div class="finding-note">Pas même une ligne de base listant son contenu (déconnexion, accès catégories, avertissement stockage).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une ligne State Patterns minimale.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">Pas d'état « mode édition » pour Détail Transaction (FR-7)</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 96 (Suppression seulement)</span>
+            </header>
+            <div class="finding-note">FR-7 (édition complète d'une transaction existante) n'a aucune trace au-delà de la description IA.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une ligne State ou Component Patterns dédiée.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">Pas d'état « permission caméra refusée » distinct du « pas encore demandée »</h3>
+              <span class="finding-location">EXPERIENCE.md Flow 1 étape 5</span>
+            </header>
+            <div class="finding-note">FR-9 exige d'expliquer pourquoi la permission est demandée ; aucun état pour le refus.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une ligne State Patterns pour permission refusée (caméra/galerie).</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>6. Bloat &amp; overspecification</h2>
+          <span class="verdict-pill verdict-strong">Strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Aucune restitution de personas/FR du PRD, aucune duplication de pixel-spec en conflit avec les tokens. DESIGN.md.Brand &amp; Style porte une voix éditoriale légitime ; EXPERIENCE.md reste tabulaire et non narratif hors Key Flows.</p>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>7. Inheritance discipline</h2>
+          <span class="verdict-pill verdict-strong">Strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><code>sources</code> resolvent sur disque, les libellés UJ-1/2/3 sont verbatim, toutes les références de tokens resolvent. Seul accroc : dérive mineure de casse/libellé entre les deux fichiers sur trois noms de composants.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">Dérive de nommage entre fichiers sur 3 composants</h3>
+              <span class="finding-location">DESIGN.md / EXPERIENCE.md</span>
+            </header>
+            <div class="finding-note">« Bottom sheet « Nouvelle transaction » » vs « Bottom sheet Saisie manuelle » ; « Ligne de transaction » vs « Ligne de Transaction » ; « Skeleton de chargement » vs « Skeleton chargement ».</div>
+            <div class="finding-fix"><strong>Fix:</strong> Aligner les noms exacts dans les deux fichiers.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>8. Shape fit</h2>
+          <span class="verdict-pill verdict-strong">Strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>DESIGN.md respecte l'ordre canonique complet. EXPERIENCE.md a tous les défauts requis ; « Inspiration &amp; Anti-patterns » (section invoquée) est justifiée par des décisions concrètes ; « Responsive &amp; Platform » est omise à raison (app mono-surface).</p>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details open>
+        <summary>
+          <h2>Accessibility review</h2>
+          <span class="reviewer-source">review-accessibility.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Plus rigoureux que la moyenne d'un spec fintech v1 (seuils de contraste et de cible tactile nommés, section Reduce Motion, suppression confirmée). Mais expédie de vrais gaps qui comptent pour une app qui touche l'argent réel d'utilisateurs sur Android d'entrée de gamme, souvent novices de la finance formelle.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">Critical</span>
+              <h3 class="finding-title">Deux paires badge catégorie échouent WCAG AA</h3>
+              <span class="finding-location">DESIGN.md lignes 30-31, 34-35, 87-90</span>
+            </header>
+            <div class="finding-note"><code>cat-education</code> (#7E57C2 sur #1E1A3A) = 3.19:1 ; <code>cat-habillement</code> (#AB47BC sur #2A1A3A) = 3.33:1. Les deux sous 4.5:1, marginal même sous le seuil UI 3:1.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Éclaircir les tokens fg ou assombrir/désaturer les bg jusqu'à dépasser 4.5:1 — vérifier par calcul, pas à l'œil.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">Critical</span>
+              <h3 class="finding-title">La couleur est l'unique signal dépense/revenu partout dans l'app</h3>
+              <span class="finding-location">DESIGN.md lignes 151-152, 166, 230 ; EXPERIENCE.md lignes 64, 181</span>
+            </header>
+            <div class="finding-note">Aucun préfixe +/−, aucune icône, aucun rappel textuel redondant. Échoue WCAG 1.4.1 ; affecte directement les ~8% d'hommes daltoniens rouge-vert.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter un repère non-coloré obligatoire (préfixe +/− sur tous les montants colorés).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Label « Solde courant » à 70% d'opacité sous le seuil de contraste</h3>
+              <span class="finding-location">DESIGN.md ligne 203</span>
+            </header>
+            <div class="finding-note">Calculé : blanc 70% sur #6B5CFF ≈ 3.05:1, sur #4A3FD4 ≈ 4.32:1 — les deux sous 4.5:1, sur le montant le plus important de l'app.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Supprimer la réduction d'opacité ou la relever à ≥85% et revérifier sur les deux extrémités du gradient.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Aucune guidance lecteur d'écran pour segmented control, lignes reçu expandables, swipe-to-delete, menu FAB</h3>
+              <span class="finding-location">EXPERIENCE.md lignes 62-75 vs 108-117</span>
+            </header>
+            <div class="finding-note">L'Accessibility Floor ne mentionne « rôle et état » que génériquement, sans le rattacher à ces patterns spécifiques.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une ligne par pattern précisant les chaînes/états annoncés.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Swipe-to-delete sans alternative accessible</h3>
+              <span class="finding-location">EXPERIENCE.md lignes 69, 102</span>
+            </header>
+            <div class="finding-note">Aucune alternative atteignable pour les utilisateurs de lecteur d'écran ou à mobilité réduite qui ne peuvent pas effectuer le geste.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une alternative visible (bouton/menu) et l'exposer comme action d'accessibilité VoiceOver/TalkBack.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Token <code>border</code> quasi invisible (1.16–1.42:1)</h3>
+              <span class="finding-location">DESIGN.md lignes 19, 108-114, 174</span>
+            </header>
+            <div class="finding-note">Très sous le seuil 3:1 WCAG 1.4.11 pour les limites de composants UI — utilisé pour tous les diviseurs de liste et bordures de champ au repos.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Confirmer si un second repère existe (teinte de fond), sinon éclaircir le token.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Cibles tactiles des icônes seules (×, chevron) non garanties ≥44pt/48dp</h3>
+              <span class="finding-location">DESIGN.md lignes 205-219 ; EXPERIENCE.md ligne 113</span>
+            </header>
+            <div class="finding-note">DESIGN.md donne une taille d'icône (20px) mais jamais de zone de tap minimale indépendante.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une guidance hit-slop explicite par élément interactif icône-seule.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Reduce Motion : ambiguïté sur le cross-fade par défaut vs accommodation</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 115</span>
+            </header>
+            <div class="finding-note">Pas clair si le cross-fade est le défaut inconditionnel ou spécifiquement le comportement Reduce-Motion-on.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Clarifier la relation entre choix par défaut et accommodation d'accessibilité.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Pas de redondance haptique/sonore pour les confirmations critiques</h3>
+              <span class="finding-location">EXPERIENCE.md lignes 150, 168</span>
+            </header>
+            <div class="finding-note">« Reçu enregistré ! » et « Transaction enregistrée. » décrits comme feedback visuel transitoire sans mention d'annonce live-region pour lecteur d'écran.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Spécifier l'exposition en live-region d'accessibilité, pas seulement visuelle.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">Lecture de l'espace fine par les lecteurs d'écran non résolue, seulement flaggée</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 117</span>
+            </header>
+            <div class="finding-note">Risque de mauvaise lecture d'un montant (ex. fragmenté en deux nombres) — conséquent pour une app financière.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Résoudre avant le build via semanticsLabel explicite, pas à la QA.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details open>
+        <summary>
+          <h2>Microcopy &amp; voice review</h2>
+          <span class="reviewer-source">review-microcopy.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Les règles de voix sont bien définies et les exemples de la table Voice and Tone les suivent correctement. Le risque principal n'est pas dans le copy existant mais dans le copy manquant : plusieurs moments utilisateurs réels n'ont aucun texte spécifié.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Asymétrie de chaleur entre les deux messages de succès canoniques</h3>
+              <span class="finding-location">EXPERIENCE.md lignes 48-49</span>
+            </header>
+            <div class="finding-note">« Reçu enregistré ! » (chaleureux) vs « Transaction enregistrée. » (neutre/administratif) — la règle déclarée est « chaud et direct » pour les deux.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Harmoniser la chaleur, ou documenter explicitement la différence comme choix délibéré.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Aucun copy pour la confirmation de suppression d'une ligne de reçu</h3>
+              <span class="finding-location">EXPERIENCE.md lignes 69, 102</span>
+            </header>
+            <div class="finding-note">Le geste swipe-to-delete est spécifié mais sans étape de confirmation, contrairement à la suppression de transaction qui a un copy explicite.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une ligne State Patterns avec copy explicite (confirm ou undo).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">High</span>
+              <h3 class="finding-title">Aucun copy pour la validation « date fin &lt; date début bloquée »</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 74</span>
+            </header>
+            <div class="finding-note">Le mécanisme (date non-sélectionnable vs message d'erreur) n'est pas précisé.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Clarifier le mécanisme ; si message, l'ajouter en State Patterns dans le registre établi.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Aucun copy pour le refus de permission caméra</h3>
+              <span class="finding-location">EXPERIENCE.md Flow 1 ligne 143</span>
+            </header>
+            <div class="finding-note">Seul le chemin nominal est décrit ; le refus est un chemin quasi certain en usage réel.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une ligne State Patterns, ex. même pattern que « Réseau absent ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Gestion Catégories sans aucun copy (création, suppression, erreur de doublon)</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 35</span>
+            </header>
+            <div class="finding-note">Enjeu plus élevé que la suppression d'une ligne puisque ça affecte des transactions existantes.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter Component/State Patterns en miroir du pattern de suppression de transaction.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Aucune confirmation de renvoi OTP réussi</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 82</span>
+            </header>
+            <div class="finding-note">Seul l'état désactivé/compteur est décrit, pas ce qui se passe après un renvoi réussi.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une confirmation neutre ou préciser une réinitialisation silencieuse.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Message d'erreur OCR timeout non cité, lien avec « Erreur réseau OCR » ambigu</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 87 vs ligne 51</span>
+            </header>
+            <div class="finding-note">Contrairement à la ligne « Réseau absent (scan) » adjacente, entièrement citée.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Citer explicitement le message, même s'il réutilise la chaîne existante.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">Medium</span>
+              <h3 class="finding-title">Règle anti-emoji formulée différemment entre les deux fichiers, ⚠ non réconcilié</h3>
+              <span class="finding-location">DESIGN.md lignes 138, 232 ; EXPERIENCE.md ligne 44</span>
+            </header>
+            <div class="finding-note">DESIGN.md a une formulation générale puis une liste restreinte ; l'icône ⚠ utilisée en UI live n'est jamais réconciliée avec la règle.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Clarifier explicitement que la règle vise le texte, pas les icônes système d'état.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">Incohérence de libellé de devise : « francs CFA » (lecteur d'écran) vs « FCFA » (partout ailleurs)</h3>
+              <span class="finding-location">EXPERIENCE.md ligne 112 ; DESIGN.md ligne 166</span>
+            </header>
+            <div class="finding-note">Probablement une expansion volontaire pour la synthèse vocale, mais non signalée comme exception.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une note d'une ligne précisant l'exception TTS.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">Low</span>
+              <h3 class="finding-title">Dérive terminologique « ticket » vs « Reçu » dans la narration du Flow 1</h3>
+              <span class="finding-location">EXPERIENCE.md lignes 135, 137, 144, 150</span>
+            </header>
+            <div class="finding-note">Probablement intentionnel (objet physique vs terme produit) mais risque de confusion en lecture rapide.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Ajouter une note glossaire d'une ligne distinguant les deux usages.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <div class="mechanical">
+      <h3>Notes mécaniques</h3>
+      <ul>
+        <li>Aucun diagramme Mermaid présent dans les deux fichiers — non requis.</li>
+        <li>Frontmatter complet sur les deux fichiers ; <code>sources</code> d'EXPERIENCE.md résolvent sur disque.</li>
+        <li>Aucune référence <code>{path.to.token}</code> cassée trouvée.</li>
+        <li><code>imports/</code> existe mais est vide ; <code>mockups/</code> et <code>wireframes/</code> n'existent pas encore — état attendu avant l'étape de promotion (Visual reference coverage non noté ce passage).</li>
+        <li>Dérive de nommage mineure entre fichiers sur 3 composants (voir Inheritance discipline).</li>
+      </ul>
+    </div>
+
+    <footer class="report-footer">
+      <div class="meta">
+        <span>Rubric: review-rubric.md</span>
+        <span>Reviewers: review-accessibility.md, review-microcopy.md</span>
+        <span>Generated: 2026-06-30</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+name = "gestbud-bff"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV namespace pour stocker les OTP (TTL 10 min)
+# Créer avec : wrangler kv namespace create OTP_STORE
+# Remplacer les id ci-dessous par les vrais IDs retournés
+[[kv_namespaces]]
+binding = "OTP_STORE"
+id = "REPLACE_WITH_PROD_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+
+[env.dev]
+name = "gestbud-bff-dev"
+vars = {}
+
+[[env.dev.kv_namespaces]]
+binding = "OTP_STORE"
+id = "REPLACE_WITH_DEV_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+
+[env.prod]
+name = "gestbud-bff-prod"
+vars = {}
+
+[[env.prod.kv_namespaces]]
+binding = "OTP_STORE"
+id = "REPLACE_WITH_PROD_KV_NAMESPACE_ID"

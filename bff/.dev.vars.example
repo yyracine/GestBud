@@ -1,0 +1,9 @@
+# Copier ce fichier en .dev.vars (ne jamais committer .dev.vars)
+# Utilisé par wrangler dev pour les secrets locaux
+
+AFRICA_TALKING_API_KEY=your_africa_talking_api_key_here
+AFRICA_TALKING_USERNAME=your_africa_talking_username_here
+
+# Clés pour Stories futures
+# MINDEE_API_KEY=your_mindee_api_key_here
+# MISTRAL_API_KEY=your_mistral_api_key_here

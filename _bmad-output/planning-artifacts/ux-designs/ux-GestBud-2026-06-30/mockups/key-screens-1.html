@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GestBud — Écrans clés</title>
+<style>
+  :root {
+    --bg: #0D0F1E;
+    --surface: #181B33;
+    --surface2: #1E2240;
+    --accent: #6B5CFF;
+    --accent-dim: #2A2460;
+    --text-primary: #FFFFFF;
+    --text-secondary: #A8A8C0;
+    --success: #00C897;
+    --danger: #FF6B6B;
+    --border: #2A2D4A;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #F5F5F5;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .screens-row {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .phone-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .phone-label {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .phone-frame {
+    width: 320px;
+    height: 640px;
+    background: var(--bg);
+    border-radius: 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 20px;
+    background: #0D0F1E;
+    border-radius: 0 0 12px 12px;
+    z-index: 100;
+  }
+
+  .screen-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-top: 24px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .screen-content::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ===== SCREEN 1: AUTH ===== */
+  .auth-screen {
+    background: var(--bg);
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .auth-illustration {
+    width: 100%;
+    height: 256px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .auth-illustration svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .auth-body {
+    flex: 1;
+    width: 100%;
+    padding: 0 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .auth-logo {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 2px;
+  }
+
+  .auth-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .auth-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 16px;
+    outline: none;
+    appearance: none;
+  }
+
+  .auth-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  .auth-btn {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: 16px;
+    padding: 15px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+  }
+
+  .auth-footer {
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  /* ===== SCREEN 2: HOME ===== */
+  .home-screen {
+    background: var(--bg);
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .home-body {
+    flex: 1;
+    padding: 8px 16px 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .home-body::-webkit-scrollbar { display: none; }
+
+  .home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .home-greeting {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .bell-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--surface);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .solde-card {
+    background: linear-gradient(135deg, #6B5CFF 0%, #4A3FD4 100%);
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .solde-card::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+
+  .solde-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+
+  .solde-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+
+  .solde-amount {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .solde-variation {
+    font-size: 12px;
+    color: var(--success);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .sparkline {
+    width: 100%;
+    height: 40px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .section-link {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .txn-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .txn-row:last-child {
+    border-bottom: none;
+  }
+
+  .cat-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .cat-food { background: #1A3A2A; }
+  .cat-transport { background: #1A2A3A; }
+  .cat-health { background: #3A1A2A; }
+  .cat-hygiene { background: #1A3A3A; }
+  .cat-income { background: #0F3A1A; }
+
+  .txn-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .txn-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .txn-date {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 1px;
+  }
+
+  .txn-amount {
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .txn-amount.neg { color: var(--danger); }
+  .txn-amount.pos { color: var(--success); }
+
+  .bottom-nav {
+    position: sticky;
+    bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 10px 0 14px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+
+  .nav-item.active {
+    color: var(--accent);
+  }
+
+  .nav-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .nav-fab-slot {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .nav-fab {
+    width: 48px;
+    height: 48px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: #fff;
+    font-weight: 300;
+    box-shadow: 0 4px 16px rgba(107,92,255,0.5);
+    position: absolute;
+    bottom: 10px;
+    line-height: 1;
+  }
+
+  .info-banner {
+    background: var(--accent-dim);
+    border-top: 1px solid var(--accent);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .info-banner-text {
+    font-size: 10px;
+    color: rgba(255,255,255,0.75);
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .info-banner-close {
+    font-size: 14px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  /* ===== SCREEN 3: SCAN ===== */
+  .scan-screen {
+    background: var(--bg);
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .app-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px 8px;
+    flex-shrink: 0;
+  }
+
+  .app-bar-back {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .app-bar-date {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .scan-sticky {
+    background: var(--surface);
+    border-radius: 16px;
+    margin: 0 16px 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .scan-total-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  .scan-total-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .scan-total-amount {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scan-total-count {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .scan-list {
+    flex: 1;
+    padding: 0 16px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 80px;
+  }
+
+  .scan-list::-webkit-scrollbar { display: none; }
+
+  .scan-line {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .scan-line.warning {
+    background: #2A1E00;
+    border: 1px solid #5A4000;
+  }
+
+  .scan-line-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .scan-line-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .scan-line-name.warn {
+    color: #FFA726;
+  }
+
+  .scan-line-amount {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .scan-line-amount.empty {
+    color: var(--text-secondary);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .cat-pill {
+    border-radius: 12px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .cat-pill.food { background: #1A3A2A; color: #4CAF50; }
+  .cat-pill.hygiene { background: #1A3A3A; color: #26C6DA; }
+  .cat-pill.other { background: #2A2A2A; color: #FFA726; }
+
+  .warn-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .scan-add-row {
+    border: 1.5px dashed var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  .scan-add-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+
+  .scan-add-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-dim);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 300;
+    flex-shrink: 0;
+  }
+
+  .scan-cta {
+    position: sticky;
+    bottom: 0;
+    margin: 0;
+    padding: 12px 16px 16px;
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+    flex-shrink: 0;
+  }
+
+  .scan-cta-btn {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: 16px;
+    padding: 15px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  /* ===== SCREEN 4: DASHBOARD ===== */
+  .dash-screen {
+    background: var(--bg);
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .dash-app-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 16px 8px;
+    flex-shrink: 0;
+    gap: 4px;
+  }
+
+  .dash-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .dash-period {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .dash-period-arrow {
+    opacity: 0.8;
+    font-size: 11px;
+  }
+
+  .dash-body {
+    flex: 1;
+    padding: 0 16px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding-bottom: 80px;
+  }
+
+  .dash-body::-webkit-scrollbar { display: none; }
+
+  .solde-card-sm {
+    background: linear-gradient(135deg, #6B5CFF 0%, #4A3FD4 100%);
+    border-radius: 24px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .solde-card-sm::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+
+  .solde-sm-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.65);
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    margin-bottom: 3px;
+  }
+
+  .solde-sm-amount {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .area-chart-wrap {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .area-chart-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  .area-chart-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+
+  .area-chart-lbl {
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+
+  .dash-cat-section {
+    margin-bottom: 12px;
+  }
+
+  .dash-cat-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .dash-cat-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .dash-cat-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .dash-cat-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dash-cat-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dash-cat-bar-wrap {
+    background: var(--border);
+    border-radius: 4px;
+    height: 4px;
+    margin-top: 4px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .dash-cat-bar {
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  .dash-cat-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .dash-cat-amount {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .var-badge {
+    border-radius: 8px;
+    padding: 2px 6px;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .var-badge.up { background: rgba(255,107,107,0.2); color: var(--danger); }
+  .var-badge.down { background: rgba(0,200,151,0.2); color: var(--success); }
+  .var-badge.flat { background: rgba(168,168,192,0.15); color: var(--text-secondary); }
+
+  /* ===== SCREEN 5: TRANSACTION BOTTOM SHEET ===== */
+  .txn-sheet-screen {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Dimmed background: Accueil screen faintly visible */
+  .txn-sheet-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    padding-top: 28px;
+  }
+
+  .txn-sheet-bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1;
+  }
+
+  /* Bottom sheet */
+  .txn-bottom-sheet {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 448px; /* ~70% of 640px */
+    background: #181B33;
+    border-radius: 28px 28px 0 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 0 0;
+    overflow: hidden;
+  }
+
+  .sheet-drag-handle-wrap {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+    padding-bottom: 6px;
+    flex-shrink: 0;
+  }
+
+  .sheet-drag-handle {
+    width: 40px;
+    height: 4px;
+    background: #3A3D5C;
+    border-radius: 2px;
+  }
+
+  .sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 18px 12px;
+    flex-shrink: 0;
+  }
+
+  .sheet-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .sheet-close {
+    font-size: 20px;
+    color: var(--text-secondary);
+    line-height: 1;
+    font-weight: 400;
+  }
+
+  /* Segmented control */
+  .sheet-segment {
+    display: flex;
+    margin: 0 18px 14px;
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 3px;
+    flex-shrink: 0;
+  }
+
+  .segment-btn {
+    flex: 1;
+    text-align: center;
+    padding: 7px 0;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+  }
+
+  .segment-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .segment-btn.inactive {
+    background: transparent;
+    color: var(--text-secondary);
+  }
+
+  /* Amount display */
+  .sheet-amount-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 18px 14px;
+    flex-shrink: 0;
+  }
+
+  .sheet-amount-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .sheet-amount-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .sheet-amount-cursor {
+    width: 2px;
+    height: 36px;
+    background: #fff;
+    border-radius: 1px;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .sheet-amount-currency {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+
+  /* Form fields */
+  .sheet-fields {
+    flex: 1;
+    padding: 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .sheet-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sheet-field-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-left: 2px;
+  }
+
+  .sheet-field-card {
+    background: var(--surface2);
+    border-radius: 14px;
+    height: 48px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sheet-field-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sheet-field-placeholder {
+    font-size: 13px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  .sheet-field-icon {
+    font-size: 14px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  .cat-badge-inline {
+    background: #1A2A3A;
+    color: #42A5F5;
+    border-radius: 8px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* CTA */
+  .sheet-cta-area {
+    padding: 12px 18px 6px;
+    flex-shrink: 0;
+  }
+
+  .sheet-cta-btn {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: 16px;
+    height: 52px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+  }
+
+  .sheet-numpad-hint {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-secondary);
+    opacity: 0.45;
+    padding: 8px 0 10px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="screens-row">
+
+  <!-- ======================== SCREEN 1: AUTH ======================== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="notch"></div>
+      <div class="screen-content">
+        <div class="auth-screen">
+          <!-- Illustration -->
+          <div class="auth-illustration">
+            <svg viewBox="0 0 320 256" xmlns="http://www.w3.org/2000/svg">
+              <!-- Radial background glow -->
+              <defs>
+                <radialGradient id="glow1" cx="50%" cy="60%" r="50%">
+                  <stop offset="0%" stop-color="#6B5CFF" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="#6B5CFF" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <rect width="320" height="256" fill="url(#glow1)"/>
+
+              <!-- Concentric arcs -->
+              <circle cx="160" cy="160" r="120" fill="none" stroke="#6B5CFF" stroke-width="1" stroke-opacity="0.12"/>
+              <circle cx="160" cy="160" r="95" fill="none" stroke="#6B5CFF" stroke-width="1" stroke-opacity="0.18"/>
+              <circle cx="160" cy="160" r="70" fill="none" stroke="#6B5CFF" stroke-width="1.5" stroke-opacity="0.25"/>
+              <circle cx="160" cy="160" r="48" fill="none" stroke="#6B5CFF" stroke-width="1.5" stroke-opacity="0.3"/>
+              <circle cx="160" cy="160" r="28" fill="none" stroke="#6B5CFF" stroke-width="2" stroke-opacity="0.35"/>
+
+              <!-- Radial lines -->
+              <line x1="160" y1="160" x2="160" y2="30" stroke="#6B5CFF" stroke-width="1" stroke-opacity="0.2"/>
+              <line x1="160" y1="160" x2="267" y2="95" stroke="#6B5CFF" stroke-width="1" stroke-opacity="0.2"/>
+              <line x1="160" y1="160" x2="267" y2="225" stroke="#6B5CFF" stroke-width="1" stroke-opacity="0.15"/>
+              <line x1="160" y1="160" x2="160" y2="290" stroke="#6B5CFF" stroke-width="1" stroke-opacity="0.1"/>
+              <line x1="160" y1="160" x2="53" y2="225" stroke="#6B5CFF" stroke-width="1" stroke-opacity="0.15"/>
+              <line x1="160" y1="160" x2="53" y2="95" stroke="#6B5CFF" stroke-width="1" stroke-opacity="0.2"/>
+              <line x1="160" y1="160" x2="236" y2="57" stroke="#6B5CFF" stroke-width="0.8" stroke-opacity="0.12"/>
+              <line x1="160" y1="160" x2="84" y2="57" stroke="#6B5CFF" stroke-width="0.8" stroke-opacity="0.12"/>
+
+              <!-- Growth line (upward trend) -->
+              <polyline points="40,200 80,185 110,175 140,155 165,140 195,120 225,100 270,75" fill="none" stroke="#6B5CFF" stroke-width="2.5" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+              <!-- Accent dots on growth line -->
+              <circle cx="160" cy="160" r="5" fill="#6B5CFF" fill-opacity="0.8"/>
+              <circle cx="160" cy="160" r="9" fill="none" stroke="#6B5CFF" stroke-width="1.5" stroke-opacity="0.4"/>
+
+              <!-- Data point dots -->
+              <circle cx="80" cy="185" r="3" fill="#6B5CFF" fill-opacity="0.5"/>
+              <circle cx="140" cy="155" r="3" fill="#6B5CFF" fill-opacity="0.5"/>
+              <circle cx="195" cy="120" r="3" fill="#6B5CFF" fill-opacity="0.5"/>
+              <circle cx="270" cy="75" r="4" fill="#6B5CFF" fill-opacity="0.7"/>
+
+              <!-- Small geometric accents -->
+              <rect x="44" y="68" width="12" height="12" rx="3" fill="#6B5CFF" fill-opacity="0.15" transform="rotate(30 50 74)"/>
+              <rect x="252" y="172" width="10" height="10" rx="2" fill="#6B5CFF" fill-opacity="0.15" transform="rotate(20 257 177)"/>
+              <polygon points="98,48 104,58 92,58" fill="#6B5CFF" fill-opacity="0.2"/>
+              <polygon points="228,42 234,52 222,52" fill="#6B5CFF" fill-opacity="0.15"/>
+            </svg>
+          </div>
+
+          <!-- Auth body -->
+          <div class="auth-body">
+            <div class="auth-logo">GestBud</div>
+            <div class="auth-subtitle">Tes finances, enfin claires.</div>
+
+            <input class="auth-input" type="text" placeholder="Numéro de téléphone (+221 XX XXX XX XX)" readonly style="cursor:default;"/>
+            <button class="auth-btn">Recevoir mon code</button>
+
+            <div class="auth-footer">Tes données restent sur ton téléphone.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">01 — Authentification</div>
+  </div>
+
+  <!-- ======================== SCREEN 2: HOME ======================== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="notch"></div>
+      <div class="screen-content" style="display:flex;flex-direction:column;padding-top:28px;">
+        <div class="home-body">
+          <!-- Header -->
+          <div class="home-header">
+            <div class="home-greeting">Bonjour Aminata 👋</div>
+            <div class="bell-icon">🔔</div>
+          </div>
+
+          <!-- Solde card -->
+          <div class="solde-card">
+            <div class="solde-label">Solde courant</div>
+            <div class="solde-amount">245 800 FCFA</div>
+            <div class="solde-variation">↑ +38 000 FCFA ce mois</div>
+            <!-- Sparkline SVG -->
+            <svg class="sparkline" viewBox="0 0 280 40" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#fff" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,30 C20,28 35,32 55,25 C75,18 90,22 110,18 C130,14 145,20 165,12 C185,4 200,10 220,8 C240,6 260,10 280,5" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M0,30 C20,28 35,32 55,25 C75,18 90,22 110,18 C130,14 145,20 165,12 C185,4 200,10 220,8 C240,6 260,10 280,5 L280,40 L0,40 Z" fill="url(#sparkFill)"/>
+            </svg>
+          </div>
+
+          <!-- Transactions récentes -->
+          <div class="section-header">
+            <div class="section-title">Transactions récentes</div>
+            <div class="section-link">Voir tout →</div>
+          </div>
+
+          <!-- Transaction rows -->
+          <div class="txn-row">
+            <div class="cat-badge cat-food">🛒</div>
+            <div class="txn-info">
+              <div class="txn-label">Auchan</div>
+              <div class="txn-date">Alimentation · Aujourd'hui</div>
+            </div>
+            <div class="txn-amount neg">−38 000 FCFA</div>
+          </div>
+
+          <div class="txn-row">
+            <div class="cat-badge cat-transport">🚌</div>
+            <div class="txn-info">
+              <div class="txn-label">Taxi marché</div>
+              <div class="txn-date">Transport · Aujourd'hui</div>
+            </div>
+            <div class="txn-amount neg">−1 500 FCFA</div>
+          </div>
+
+          <div class="txn-row">
+            <div class="cat-badge cat-income">💰</div>
+            <div class="txn-info">
+              <div class="txn-label">Salaire juin</div>
+              <div class="txn-date">Revenu · 28 juin</div>
+            </div>
+            <div class="txn-amount pos">+250 000 FCFA</div>
+          </div>
+
+          <div class="txn-row">
+            <div class="cat-badge cat-health">💊</div>
+            <div class="txn-info">
+              <div class="txn-label">Pharmacie</div>
+              <div class="txn-date">Santé · 26 juin</div>
+            </div>
+            <div class="txn-amount neg">−7 200 FCFA</div>
+          </div>
+
+          <div class="txn-row">
+            <div class="cat-badge cat-hygiene">🧹</div>
+            <div class="txn-info">
+              <div class="txn-label">Supermarché</div>
+              <div class="txn-date">Hygiène · 25 juin</div>
+            </div>
+            <div class="txn-amount neg">−4 800 FCFA</div>
+          </div>
+        </div>
+
+        <!-- Info banner -->
+        <div class="info-banner">
+          <div class="info-banner-text">Tes données sont sur ton téléphone. Pense à ne pas désinstaller l'app.</div>
+          <div class="info-banner-close">✕</div>
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="bottom-nav">
+          <div class="nav-item active">
+            <div class="nav-icon">⌂</div>
+            <span>Accueil</span>
+          </div>
+          <div class="nav-fab-slot">
+            <div class="nav-fab">+</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">☰</div>
+            <span>Listes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">02 — Accueil</div>
+  </div>
+
+  <!-- ======================== SCREEN 3: SCAN ======================== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="notch"></div>
+      <div class="screen-content" style="display:flex;flex-direction:column;padding-top:28px;">
+
+        <!-- App bar -->
+        <div class="app-bar">
+          <div class="app-bar-back">← Reçu Auchan</div>
+          <div class="app-bar-date">30 juin 2026</div>
+        </div>
+
+        <!-- Sticky header card -->
+        <div class="scan-sticky">
+          <div class="scan-total-label">Récapitulatif</div>
+          <div class="scan-total-row">
+            <div class="scan-total-amount">Total reçu : 38 000 FCFA</div>
+          </div>
+          <div class="scan-total-count">5 articles détectés</div>
+        </div>
+
+        <!-- Lines -->
+        <div class="scan-list">
+          <!-- Line 1 -->
+          <div class="scan-line">
+            <div class="scan-line-info">
+              <div class="scan-line-name">Riz parfumé 5kg</div>
+            </div>
+            <div class="scan-line-amount">7 500 FCFA</div>
+            <div class="cat-pill food">Alimentation ▾</div>
+          </div>
+
+          <!-- Line 2 -->
+          <div class="scan-line">
+            <div class="scan-line-info">
+              <div class="scan-line-name">Lait Candia ×3</div>
+            </div>
+            <div class="scan-line-amount">4 200 FCFA</div>
+            <div class="cat-pill food">Alimentation ▾</div>
+          </div>
+
+          <!-- Line 3 -->
+          <div class="scan-line">
+            <div class="scan-line-info">
+              <div class="scan-line-name">Eau de Javel</div>
+            </div>
+            <div class="scan-line-amount">1 800 FCFA</div>
+            <div class="cat-pill hygiene">Hygiène ▾</div>
+          </div>
+
+          <!-- Line 4 -->
+          <div class="scan-line">
+            <div class="scan-line-info">
+              <div class="scan-line-name">Pain de mie</div>
+            </div>
+            <div class="scan-line-amount">850 FCFA</div>
+            <div class="cat-pill food">Alimentation ▾</div>
+          </div>
+
+          <!-- Line 5: warning -->
+          <div class="scan-line warning">
+            <div class="warn-icon">⚠️</div>
+            <div class="scan-line-info">
+              <div class="scan-line-name warn">??? illisible</div>
+            </div>
+            <div class="scan-line-amount empty">—</div>
+            <div class="cat-pill other">Autre ▾</div>
+          </div>
+
+          <!-- Add line -->
+          <div class="scan-add-row">
+            <div class="scan-add-icon">+</div>
+            <div class="scan-add-text">Ajouter une ligne</div>
+          </div>
+        </div>
+
+        <!-- Fixed CTA -->
+        <div class="scan-cta">
+          <button class="scan-cta-btn">Valider le reçu (4 articles)</button>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">03 — Scan Reçu</div>
+  </div>
+
+  <!-- ======================== SCREEN 4: DASHBOARD ======================== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="notch"></div>
+      <div class="screen-content" style="display:flex;flex-direction:column;padding-top:28px;">
+
+        <!-- App bar -->
+        <div class="dash-app-bar">
+          <div class="dash-title">Tableau de bord</div>
+          <div class="dash-period">
+            <span class="dash-period-arrow">◀</span>
+            <span>Juin 2026</span>
+            <span class="dash-period-arrow">▶</span>
+          </div>
+        </div>
+
+        <!-- Dashboard body -->
+        <div class="dash-body">
+
+          <!-- Solde card (smaller) -->
+          <div class="solde-card-sm">
+            <div class="solde-sm-label">Solde fin de période</div>
+            <div class="solde-sm-amount">87 200 FCFA</div>
+          </div>
+
+          <!-- Area chart -->
+          <div class="area-chart-wrap">
+            <div class="area-chart-title">Évolution sur 30 jours</div>
+            <svg viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:120px;">
+              <defs>
+                <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#6B5CFF" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#6B5CFF" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Area fill -->
+              <path d="M0,90 C15,85 25,80 40,70 C55,60 65,72 80,65 C95,58 100,45 115,42 C130,38 138,52 155,48 C168,44 178,35 195,30 C210,25 225,38 245,32 C260,27 270,22 280,20 L280,115 L0,115 Z"
+                fill="url(#areaFill)"/>
+              <!-- Line stroke -->
+              <path d="M0,90 C15,85 25,80 40,70 C55,60 65,72 80,65 C95,58 100,45 115,42 C130,38 138,52 155,48 C168,44 178,35 195,30 C210,25 225,38 245,32 C260,27 270,22 280,20"
+                fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Data point dots -->
+              <circle cx="0" cy="90" r="3" fill="#6B5CFF"/>
+              <circle cx="115" cy="42" r="3" fill="#6B5CFF"/>
+              <circle cx="280" cy="20" r="3" fill="#6B5CFF"/>
+            </svg>
+            <div class="area-chart-labels">
+              <span class="area-chart-lbl">1 juin</span>
+              <span class="area-chart-lbl">30 juin</span>
+            </div>
+          </div>
+
+          <!-- Category breakdown -->
+          <div class="dash-cat-section">
+            <div class="dash-cat-title">Dépenses par catégorie</div>
+
+            <!-- Alimentation -->
+            <div class="dash-cat-row">
+              <div class="dash-cat-badge cat-food" style="background:#1A3A2A;">🛒</div>
+              <div class="dash-cat-info">
+                <div class="dash-cat-name">Alimentation</div>
+                <div class="dash-cat-bar-wrap">
+                  <div class="dash-cat-bar" style="width:85%;background:#4CAF50;"></div>
+                </div>
+              </div>
+              <div class="dash-cat-right">
+                <div class="dash-cat-amount">38 000</div>
+                <div class="var-badge up">↑ +12%</div>
+              </div>
+            </div>
+
+            <!-- Transport -->
+            <div class="dash-cat-row">
+              <div class="dash-cat-badge cat-transport" style="background:#1A2A3A;">🚌</div>
+              <div class="dash-cat-info">
+                <div class="dash-cat-name">Transport</div>
+                <div class="dash-cat-bar-wrap">
+                  <div class="dash-cat-bar" style="width:55%;background:#42A5F5;"></div>
+                </div>
+              </div>
+              <div class="dash-cat-right">
+                <div class="dash-cat-amount">12 500</div>
+                <div class="var-badge down">↓ −5%</div>
+              </div>
+            </div>
+
+            <!-- Santé -->
+            <div class="dash-cat-row">
+              <div class="dash-cat-badge cat-health" style="background:#3A1A2A;">💊</div>
+              <div class="dash-cat-info">
+                <div class="dash-cat-name">Santé & Pharmacie</div>
+                <div class="dash-cat-bar-wrap">
+                  <div class="dash-cat-bar" style="width:32%;background:#EF5350;"></div>
+                </div>
+              </div>
+              <div class="dash-cat-right">
+                <div class="dash-cat-amount">7 200</div>
+                <div class="var-badge up">↑ +100%</div>
+              </div>
+            </div>
+
+            <!-- Hygiène -->
+            <div class="dash-cat-row">
+              <div class="dash-cat-badge cat-hygiene" style="background:#1A3A3A;">🧹</div>
+              <div class="dash-cat-info">
+                <div class="dash-cat-name">Hygiène</div>
+                <div class="dash-cat-bar-wrap">
+                  <div class="dash-cat-bar" style="width:22%;background:#26C6DA;"></div>
+                </div>
+              </div>
+              <div class="dash-cat-right">
+                <div class="dash-cat-amount">4 800</div>
+                <div class="var-badge flat">= 0%</div>
+              </div>
+            </div>
+
+            <!-- Loisirs -->
+            <div class="dash-cat-row">
+              <div class="dash-cat-badge" style="background:#2A1A3A;">🎮</div>
+              <div class="dash-cat-info">
+                <div class="dash-cat-name">Loisirs</div>
+                <div class="dash-cat-bar-wrap">
+                  <div class="dash-cat-bar" style="width:10%;background:#AB47BC;"></div>
+                </div>
+              </div>
+              <div class="dash-cat-right">
+                <div class="dash-cat-amount">2 300</div>
+                <div class="var-badge down">↓ −30%</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="bottom-nav">
+          <div class="nav-item">
+            <div class="nav-icon">⌂</div>
+            <span>Accueil</span>
+          </div>
+          <div class="nav-fab-slot">
+            <div class="nav-fab">+</div>
+          </div>
+          <div class="nav-item active">
+            <div class="nav-icon">📊</div>
+            <span>Dashboard</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">04 — Tableau de bord</div>
+  </div>
+
+  <!-- ======================== SCREEN 5: TRANSACTION BOTTOM SHEET ======================== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="notch"></div>
+
+      <!-- Full phone container: no scroll wrapper, we manage layers directly -->
+      <div class="txn-sheet-screen">
+
+        <!-- Background: dimmed Accueil screen -->
+        <div class="txn-sheet-bg">
+          <!-- Faint Accueil header visible behind overlay -->
+          <div style="padding: 8px 16px 0; flex-shrink:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <div style="font-size:15px;font-weight:700;color:var(--text-primary);">Bonjour Aminata 👋</div>
+              <div style="width:34px;height:34px;background:var(--surface);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;">🔔</div>
+            </div>
+            <!-- Solde card faint -->
+            <div style="background:linear-gradient(135deg,#6B5CFF 0%,#4A3FD4 100%);border-radius:22px;padding:16px 18px;">
+              <div style="font-size:10px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:3px;">Solde courant</div>
+              <div style="font-size:24px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;">245 800 FCFA</div>
+              <div style="font-size:11px;color:#00C897;font-weight:600;margin-top:4px;">↑ +38 000 FCFA ce mois</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark overlay -->
+        <div class="txn-sheet-bg-overlay"></div>
+
+        <!-- Bottom Sheet -->
+        <div class="txn-bottom-sheet">
+          <!-- Drag handle -->
+          <div class="sheet-drag-handle-wrap">
+            <div class="sheet-drag-handle"></div>
+          </div>
+
+          <!-- Header row -->
+          <div class="sheet-header">
+            <div class="sheet-title">Nouvelle transaction</div>
+            <div class="sheet-close">×</div>
+          </div>
+
+          <!-- Segmented control: Dépense / Revenu -->
+          <div class="sheet-segment">
+            <button class="segment-btn active">Dépense</button>
+            <button class="segment-btn inactive">Revenu</button>
+          </div>
+
+          <!-- Large amount display -->
+          <div class="sheet-amount-display">
+            <div class="sheet-amount-row">
+              <div class="sheet-amount-value">1 500</div>
+              <div class="sheet-amount-cursor"></div>
+            </div>
+            <div class="sheet-amount-currency">FCFA</div>
+          </div>
+
+          <!-- Form fields -->
+          <div class="sheet-fields">
+
+            <!-- Catégorie -->
+            <div class="sheet-field">
+              <div class="sheet-field-label">Catégorie</div>
+              <div class="sheet-field-card">
+                <div class="sheet-field-value">
+                  <span>🚌</span>
+                  <span class="cat-badge-inline">Transport</span>
+                </div>
+                <div class="sheet-field-icon">▾</div>
+              </div>
+            </div>
+
+            <!-- Date -->
+            <div class="sheet-field">
+              <div class="sheet-field-label">Date</div>
+              <div class="sheet-field-card">
+                <div class="sheet-field-value">Aujourd'hui, 30 juin 2026</div>
+                <div class="sheet-field-icon">📅</div>
+              </div>
+            </div>
+
+            <!-- Note -->
+            <div class="sheet-field">
+              <div class="sheet-field-label">Note</div>
+              <div class="sheet-field-card">
+                <div class="sheet-field-placeholder">Ajouter une note (optionnel)</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- CTA button -->
+          <div class="sheet-cta-area">
+            <button class="sheet-cta-btn">Enregistrer</button>
+          </div>
+
+          <!-- Numpad hint -->
+          <div class="sheet-numpad-hint">— Clavier numérique —</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">05 — Saisie manuelle</div>
+  </div>
+
+</div>
+</body>
+</html>

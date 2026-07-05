@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GestBud — Palettes de couleurs</title>
+<style>
+  /* ============================================================
+     PAGE GLOBALS
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #F0F0F0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 32px 16px 64px;
+    color: #1a1a1a;
+  }
+
+  h1.page-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #111;
+    margin-bottom: 6px;
+  }
+  p.page-subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 36px;
+  }
+
+  /* ---- flex row wrapper ---- */
+  .variations-row {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  /* ---- variation column card ---- */
+  .variation-col {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 16px 24px;
+    width: 340px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .variation-col h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    color: #111;
+  }
+  .variation-col .register {
+    font-size: 12px;
+    color: #777;
+    font-style: italic;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  /* ---- token chips grid ---- */
+  .token-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .token-chip {
+    border-radius: 8px;
+    padding: 8px 6px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid rgba(0,0,0,0.07);
+  }
+  .token-chip .swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.12);
+  }
+  .token-chip .token-name {
+    font-size: 9px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .token-chip .token-hex {
+    font-size: 9px;
+    font-family: 'Courier New', monospace;
+    color: #333;
+    text-align: center;
+  }
+
+  /* ---- phone frame wrapper ---- */
+  .phone-frame {
+    width: 300px;
+    margin: 0 auto 20px;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(0,0,0,0.12),
+      0 8px 32px rgba(0,0,0,0.22),
+      0 2px 8px rgba(0,0,0,0.14);
+    position: relative;
+  }
+
+  /* ---- token reference list ---- */
+  .token-list {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: #444;
+    line-height: 1.9;
+    background: #f7f7f7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid #e8e8e8;
+  }
+  .token-list .tl-label {
+    color: #888;
+    display: inline-block;
+    width: 120px;
+  }
+  .token-list .tl-hex {
+    font-weight: 600;
+    color: #222;
+  }
+
+
+  /* ============================================================
+     VARIATION 1 — NUIT VIOLETTE
+     ============================================================
+     --bg:           #0D0F1E   (fond principal, très profond navy/indigo)
+     --surface:      #181B33   (cartes et surfaces)
+     --accent:       #6B5CFF   (violet vif primaire)
+     --accent2:      #9D93FF   (violet doux secondaire / hover)
+     --text-pri:     #FFFFFF   (texte principal blanc pur)
+     --text-sec:     #9B9EC8   (texte secondaire lavande)
+     --success:      #34D399   (positif / revenus)
+     --danger:       #F87171   (négatif / dépenses)
+     --border:       #252849   (séparateur / bordure)
+  */
+  .v1-bg       { background: #0D0F1E; }
+  .v1-surface  { background: #181B33; }
+  .v1-accent   { background: #6B5CFF; }
+  .v1-accent2  { background: #9D93FF; }
+  .v1-text-pri { background: #FFFFFF; }
+  .v1-text-sec { background: #9B9EC8; }
+  .v1-success  { background: #34D399; }
+  .v1-danger   { background: #F87171; }
+  .v1-border   { background: #252849; }
+
+  /* phone UI — V1 */
+  .v1-phone {
+    background: #0D0F1E;
+    padding: 20px 16px 24px;
+    min-height: 460px;
+  }
+  .v1-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .v1-greeting {
+    font-size: 12px;
+    color: #9B9EC8;
+    font-weight: 500;
+  }
+  .v1-app-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.2px;
+  }
+  .v1-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #6B5CFF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+  }
+  .v1-balance-card {
+    background: #181B33;
+    border-radius: 16px;
+    padding: 18px 16px 16px;
+    margin-bottom: 16px;
+    border: 1px solid #252849;
+    position: relative;
+    overflow: hidden;
+  }
+  .v1-balance-card::after {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(107, 92, 255, 0.15);
+  }
+  .v1-balance-label { font-size: 11px; color: #9B9EC8; margin-bottom: 6px; }
+  .v1-balance-amount { font-size: 26px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .v1-balance-currency { font-size: 12px; color: #9B9EC8; margin-bottom: 12px; }
+  .v1-trend {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(52, 211, 153, 0.12);
+    border-radius: 20px; padding: 3px 8px;
+  }
+  .v1-trend-icon { font-size: 10px; }
+  .v1-trend-text { font-size: 11px; font-weight: 600; color: #34D399; }
+
+  .v1-section-title {
+    font-size: 13px; font-weight: 600; color: #FFFFFF;
+    margin-bottom: 10px; margin-top: 4px;
+  }
+  .v1-cat-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .v1-cat-item {
+    background: #181B33;
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #252849;
+  }
+  .v1-cat-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .v1-cat-info { flex: 1; }
+  .v1-cat-name { font-size: 12px; font-weight: 600; color: #FFFFFF; }
+  .v1-cat-sub  { font-size: 10px; color: #9B9EC8; }
+  .v1-cat-amount { font-size: 13px; font-weight: 700; color: #F87171; }
+
+  .v1-cta {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: #6B5CFF;
+    border-radius: 14px; padding: 14px;
+    font-size: 14px; font-weight: 700; color: #fff;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+  }
+  .v1-cta-icon { font-size: 18px; font-weight: 700; }
+
+
+  /* ============================================================
+     VARIATION 2 — INDIGO DAKAR
+     ============================================================
+     --bg:           #080A16   (fond encore plus sombre, quasi noir indigo)
+     --surface:      #12163A   (cartes indigo saturé)
+     --accent:       #7B6FFF   (violet légèrement plus clair/chaud)
+     --accent2:      #E8A44A   (cuivre chaud — montants FCFA)
+     --text-pri:     #F0EFFF   (blanc légèrement chaud)
+     --text-sec:     #8A8FBF   (gris lavande)
+     --success:      #2ECC8A   (vert émeraude)
+     --danger:       #FF6B6B   (rouge corail)
+     --border:       #1E2450   (séparateur indigo profond)
+  */
+  .v2-bg       { background: #080A16; }
+  .v2-surface  { background: #12163A; }
+  .v2-accent   { background: #7B6FFF; }
+  .v2-accent2  { background: #E8A44A; }
+  .v2-text-pri { background: #F0EFFF; }
+  .v2-text-sec { background: #8A8FBF; }
+  .v2-success  { background: #2ECC8A; }
+  .v2-danger   { background: #FF6B6B; }
+  .v2-border   { background: #1E2450; }
+
+  .v2-phone {
+    background: #080A16;
+    padding: 20px 16px 24px;
+    min-height: 460px;
+  }
+  .v2-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .v2-greeting { font-size: 12px; color: #8A8FBF; font-weight: 500; }
+  .v2-app-name { font-size: 16px; font-weight: 700; color: #F0EFFF; letter-spacing: -0.2px; }
+  .v2-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #7B6FFF, #E8A44A);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+  }
+  .v2-balance-card {
+    background: #12163A;
+    border-radius: 16px; padding: 18px 16px 16px; margin-bottom: 16px;
+    border: 1px solid #1E2450; position: relative; overflow: hidden;
+  }
+  .v2-balance-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #7B6FFF, #E8A44A);
+  }
+  .v2-balance-card::after {
+    content: '';
+    position: absolute; top: -20px; right: -20px;
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(123, 111, 255, 0.1);
+  }
+  .v2-balance-label { font-size: 11px; color: #8A8FBF; margin-bottom: 6px; }
+  .v2-balance-amount { font-size: 26px; font-weight: 700; color: #F0EFFF; letter-spacing: -0.5px; margin-bottom: 2px; }
+  .v2-balance-fcfa { font-size: 14px; font-weight: 700; color: #E8A44A; margin-bottom: 12px; }
+  .v2-trend {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(46, 204, 138, 0.12);
+    border-radius: 20px; padding: 3px 8px;
+  }
+  .v2-trend-text { font-size: 11px; font-weight: 600; color: #2ECC8A; }
+
+  .v2-section-title {
+    font-size: 13px; font-weight: 600; color: #F0EFFF;
+    margin-bottom: 10px; margin-top: 4px;
+  }
+  .v2-cat-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .v2-cat-item {
+    background: #12163A; border-radius: 12px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px; border: 1px solid #1E2450;
+  }
+  .v2-cat-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .v2-cat-info { flex: 1; }
+  .v2-cat-name { font-size: 12px; font-weight: 600; color: #F0EFFF; }
+  .v2-cat-sub  { font-size: 10px; color: #8A8FBF; }
+  .v2-cat-amount { font-size: 13px; font-weight: 700; color: #E8A44A; }
+
+  .v2-cta {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: linear-gradient(135deg, #7B6FFF 0%, #5A4FE0 100%);
+    border-radius: 14px; padding: 14px;
+    font-size: 14px; font-weight: 700; color: #fff;
+    letter-spacing: 0.2px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(123, 111, 255, 0.35);
+  }
+
+
+  /* ============================================================
+     VARIATION 3 — KORA GOLD
+     ============================================================
+     --bg:           #0E1018   (fond profond quasi-noir, légèrement bleuté)
+     --surface:      #181C2E   (cartes sombres bleutées)
+     --accent:       #F5A623   (ambre/or chaud primaire)
+     --accent2:      #FFBC40   (or lumineux secondaire)
+     --text-pri:     #FFFFFF   (blanc pur)
+     --text-sec:     #A0A4B8   (gris doux)
+     --success:      #4ADE80   (vert menthe clair)
+     --danger:       #FB7185   (rose-rouge)
+     --border:       #22273D   (bordure sombre bleutée)
+  */
+  .v3-bg       { background: #0E1018; }
+  .v3-surface  { background: #181C2E; }
+  .v3-accent   { background: #F5A623; }
+  .v3-accent2  { background: #FFBC40; }
+  .v3-text-pri { background: #FFFFFF; }
+  .v3-text-sec { background: #A0A4B8; }
+  .v3-success  { background: #4ADE80; }
+  .v3-danger   { background: #FB7185; }
+  .v3-border   { background: #22273D; }
+
+  .v3-phone {
+    background: #0E1018;
+    padding: 20px 16px 24px;
+    min-height: 460px;
+  }
+  .v3-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .v3-greeting { font-size: 12px; color: #A0A4B8; font-weight: 500; }
+  .v3-app-name { font-size: 16px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.2px; }
+  .v3-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #F5A623, #FFBC40);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #0E1018;
+  }
+  .v3-balance-card {
+    background: linear-gradient(135deg, #1E1A0C 0%, #181C2E 100%);
+    border-radius: 16px; padding: 18px 16px 16px; margin-bottom: 16px;
+    border: 1px solid #2C2510; position: relative; overflow: hidden;
+  }
+  .v3-balance-card::after {
+    content: '';
+    position: absolute; top: -40px; right: -20px;
+    width: 110px; height: 110px; border-radius: 50%;
+    background: rgba(245, 166, 35, 0.08);
+  }
+  .v3-gold-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #F5A623, #FFBC40, #F5A623);
+    border-radius: 3px 3px 0 0;
+  }
+  .v3-balance-label { font-size: 11px; color: #A0A4B8; margin-bottom: 6px; }
+  .v3-balance-amount { font-size: 26px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; margin-bottom: 2px; }
+  .v3-balance-fcfa { font-size: 12px; color: #F5A623; font-weight: 600; margin-bottom: 12px; }
+  .v3-trend {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(74, 222, 128, 0.12);
+    border-radius: 20px; padding: 3px 8px;
+  }
+  .v3-trend-text { font-size: 11px; font-weight: 600; color: #4ADE80; }
+
+  .v3-section-title {
+    font-size: 13px; font-weight: 600; color: #FFFFFF;
+    margin-bottom: 10px; margin-top: 4px;
+  }
+  .v3-cat-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .v3-cat-item {
+    background: #181C2E; border-radius: 12px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px; border: 1px solid #22273D;
+  }
+  .v3-cat-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .v3-cat-info { flex: 1; }
+  .v3-cat-name { font-size: 12px; font-weight: 600; color: #FFFFFF; }
+  .v3-cat-sub  { font-size: 10px; color: #A0A4B8; }
+  .v3-cat-amount { font-size: 13px; font-weight: 700; color: #FB7185; }
+
+  .v3-cta {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: linear-gradient(135deg, #F5A623 0%, #FFBC40 100%);
+    border-radius: 14px; padding: 14px;
+    font-size: 14px; font-weight: 700; color: #0E1018;
+    letter-spacing: 0.2px; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(245, 166, 35, 0.4);
+  }
+
+
+  /* ============================================================
+     VARIATION 4 — MINUIT VERT
+     ============================================================
+     --bg:           #0A1018   (fond bleu-noir, légèrement teinté)
+     --surface:      #101C24   (cartes vert-nuit profond)
+     --accent:       #00C897   (émeraude vif primaire)
+     --accent2:      #00A87C   (émeraude foncé secondaire)
+     --text-pri:     #E8F5F1   (blanc verdâtre très doux)
+     --text-sec:     #6B9E90   (vert-gris moyen)
+     --success:      #00C897   (même que accent — cohérence croissance)
+     --danger:       #FF5F5F   (rouge vif)
+     --border:       #152030   (bordure bleu-vert sombre)
+  */
+  .v4-bg       { background: #0A1018; }
+  .v4-surface  { background: #101C24; }
+  .v4-accent   { background: #00C897; }
+  .v4-accent2  { background: #00A87C; }
+  .v4-text-pri { background: #E8F5F1; }
+  .v4-text-sec { background: #6B9E90; }
+  .v4-success  { background: #00C897; }
+  .v4-danger   { background: #FF5F5F; }
+  .v4-border   { background: #152030; }
+
+  .v4-phone {
+    background: #0A1018;
+    padding: 20px 16px 24px;
+    min-height: 460px;
+  }
+  .v4-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .v4-greeting { font-size: 12px; color: #6B9E90; font-weight: 500; }
+  .v4-app-name { font-size: 16px; font-weight: 700; color: #E8F5F1; letter-spacing: -0.2px; }
+  .v4-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #00C897;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #0A1018;
+  }
+  .v4-balance-card {
+    background: #101C24;
+    border-radius: 16px; padding: 18px 16px 16px; margin-bottom: 16px;
+    border: 1px solid #152030; position: relative; overflow: hidden;
+  }
+  .v4-balance-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #00C897, #00A87C);
+  }
+  .v4-balance-card::after {
+    content: '';
+    position: absolute; top: -30px; right: -20px;
+    width: 90px; height: 90px; border-radius: 50%;
+    background: rgba(0, 200, 151, 0.07);
+  }
+  .v4-balance-label { font-size: 11px; color: #6B9E90; margin-bottom: 6px; }
+  .v4-balance-amount { font-size: 26px; font-weight: 700; color: #E8F5F1; letter-spacing: -0.5px; margin-bottom: 2px; }
+  .v4-balance-fcfa { font-size: 12px; color: #00C897; font-weight: 600; margin-bottom: 12px; }
+  .v4-trend {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(0, 200, 151, 0.14);
+    border-radius: 20px; padding: 3px 8px;
+  }
+  .v4-trend-text { font-size: 11px; font-weight: 600; color: #00C897; }
+
+  /* mini sparkline chart */
+  .v4-sparkline {
+    margin: 10px 0 0;
+    height: 32px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+  }
+  .v4-bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    opacity: 0.5;
+    background: #00C897;
+    min-height: 4px;
+  }
+  .v4-bar.active { opacity: 1; }
+
+  .v4-section-title {
+    font-size: 13px; font-weight: 600; color: #E8F5F1;
+    margin-bottom: 10px; margin-top: 4px;
+  }
+  .v4-cat-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .v4-cat-item {
+    background: #101C24; border-radius: 12px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px; border: 1px solid #152030;
+  }
+  .v4-cat-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .v4-cat-info { flex: 1; }
+  .v4-cat-name { font-size: 12px; font-weight: 600; color: #E8F5F1; }
+  .v4-cat-sub  { font-size: 10px; color: #6B9E90; }
+  .v4-cat-amount { font-size: 13px; font-weight: 700; color: #FF5F5F; }
+
+  .v4-cta {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: #00C897;
+    border-radius: 14px; padding: 14px;
+    font-size: 14px; font-weight: 700; color: #051210;
+    letter-spacing: 0.2px; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 200, 151, 0.35);
+  }
+
+
+  /* ============================================================
+     VARIATION 5 — ANTHRACITE PRO
+     ============================================================
+     --bg:           #111214   (fond anthracite neutre, sans teinte bleue)
+     --surface:      #1C1E21   (cartes gris foncé neutre)
+     --accent:       #7C6FFF   (violet similaire mais sur base neutre)
+     --accent2:      #A899FF   (lilas doux)
+     --text-pri:     #F2F2F3   (blanc cassé neutre)
+     --text-sec:     #8A8C94   (gris moyen neutre)
+     --success:      #3ECF8E   (vert affaires)
+     --danger:       #F5666A   (rouge sobre)
+     --border:       #2A2C30   (bordure gris neutre)
+  */
+  .v5-bg       { background: #111214; }
+  .v5-surface  { background: #1C1E21; }
+  .v5-accent   { background: #7C6FFF; }
+  .v5-accent2  { background: #A899FF; }
+  .v5-text-pri { background: #F2F2F3; }
+  .v5-text-sec { background: #8A8C94; }
+  .v5-success  { background: #3ECF8E; }
+  .v5-danger   { background: #F5666A; }
+  .v5-border   { background: #2A2C30; }
+
+  .v5-phone {
+    background: #111214;
+    padding: 20px 16px 24px;
+    min-height: 460px;
+  }
+  .v5-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .v5-greeting { font-size: 12px; color: #8A8C94; font-weight: 500; }
+  .v5-app-name { font-size: 16px; font-weight: 700; color: #F2F2F3; letter-spacing: -0.2px; }
+  .v5-avatar {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #7C6FFF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+  }
+  .v5-balance-card {
+    background: #1C1E21;
+    border-radius: 12px; padding: 18px 16px 16px; margin-bottom: 16px;
+    border: 1px solid #2A2C30; position: relative;
+  }
+  .v5-balance-label { font-size: 11px; color: #8A8C94; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .v5-balance-amount { font-size: 26px; font-weight: 700; color: #F2F2F3; letter-spacing: -0.5px; margin-bottom: 2px; font-variant-numeric: tabular-nums; }
+  .v5-balance-fcfa { font-size: 12px; color: #8A8C94; font-weight: 500; margin-bottom: 12px; }
+  .v5-trend {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(62, 207, 142, 0.1);
+    border: 1px solid rgba(62, 207, 142, 0.2);
+    border-radius: 6px; padding: 3px 8px;
+  }
+  .v5-trend-text { font-size: 11px; font-weight: 600; color: #3ECF8E; }
+
+  .v5-section-title {
+    font-size: 11px; font-weight: 600; color: #8A8C94;
+    margin-bottom: 8px; margin-top: 4px;
+    text-transform: uppercase; letter-spacing: 0.7px;
+  }
+  .v5-cat-list { display: flex; flex-direction: column; gap: 1px; margin-bottom: 16px;
+    background: #2A2C30; border-radius: 10px; overflow: hidden; }
+  .v5-cat-item {
+    background: #1C1E21; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .v5-cat-item:not(:last-child) { border-bottom: 1px solid #2A2C30; }
+  .v5-cat-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .v5-cat-info { flex: 1; }
+  .v5-cat-name { font-size: 12px; font-weight: 600; color: #F2F2F3; }
+  .v5-cat-sub  { font-size: 10px; color: #8A8C94; }
+  .v5-cat-amount { font-size: 13px; font-weight: 700; color: #F5666A; font-variant-numeric: tabular-nums; }
+
+  .v5-cta {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: #7C6FFF;
+    border-radius: 10px; padding: 14px;
+    font-size: 14px; font-weight: 600; color: #fff;
+    letter-spacing: 0.1px; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">GestBud — Palettes de couleurs</h1>
+<p class="page-subtitle">5 variations de thème pour l'app mobile de finance personnelle · XOF FCFA · Flutter</p>
+
+<div class="variations-row">
+
+  <!-- ======================================================
+       VARIATION 1 — NUIT VIOLETTE
+       ====================================================== -->
+  <div class="variation-col">
+    <h2>1. Nuit Violette</h2>
+    <p class="register">Registre : Premium global — fintech international, technologie épurée</p>
+
+    <!-- Token chips -->
+    <div class="token-grid">
+      <div class="token-chip">
+        <div class="swatch v1-bg"></div>
+        <div class="token-name">Background</div>
+        <div class="token-hex">#0D0F1E</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v1-surface"></div>
+        <div class="token-name">Surface</div>
+        <div class="token-hex">#181B33</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v1-accent"></div>
+        <div class="token-name">Accent 1</div>
+        <div class="token-hex">#6B5CFF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v1-accent2"></div>
+        <div class="token-name">Accent 2</div>
+        <div class="token-hex">#9D93FF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v1-text-pri"></div>
+        <div class="token-name">Texte Pri.</div>
+        <div class="token-hex">#FFFFFF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v1-text-sec"></div>
+        <div class="token-name">Texte Sec.</div>
+        <div class="token-hex">#9B9EC8</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v1-success"></div>
+        <div class="token-name">Positif</div>
+        <div class="token-hex">#34D399</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v1-danger"></div>
+        <div class="token-name">Négatif</div>
+        <div class="token-hex">#F87171</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v1-border"></div>
+        <div class="token-name">Bordure</div>
+        <div class="token-hex">#252849</div>
+      </div>
+    </div>
+
+    <!-- Phone UI mockup -->
+    <div class="phone-frame">
+      <div class="v1-phone">
+        <!-- Top bar -->
+        <div class="v1-topbar">
+          <div>
+            <div class="v1-greeting">Bonjour, Amadou 👋</div>
+            <div class="v1-app-name">GestBud</div>
+          </div>
+          <div class="v1-avatar">AM</div>
+        </div>
+
+        <!-- Balance card -->
+        <div class="v1-balance-card">
+          <div class="v1-balance-label">Solde total</div>
+          <div class="v1-balance-amount">245 800</div>
+          <div class="v1-balance-currency">FCFA</div>
+          <div class="v1-trend">
+            <span class="v1-trend-icon">↑</span>
+            <span class="v1-trend-text">+3,2 % ce mois</span>
+          </div>
+        </div>
+
+        <!-- Section dépenses -->
+        <div class="v1-section-title">Dépenses par catégorie</div>
+        <div class="v1-cat-list">
+          <div class="v1-cat-item">
+            <div class="v1-cat-icon" style="background: rgba(251, 146, 60, 0.15);">🛒</div>
+            <div class="v1-cat-info">
+              <div class="v1-cat-name">Alimentation</div>
+              <div class="v1-cat-sub">14 transactions</div>
+            </div>
+            <div class="v1-cat-amount">38 000 FCFA</div>
+          </div>
+          <div class="v1-cat-item">
+            <div class="v1-cat-icon" style="background: rgba(107, 92, 255, 0.15);">🚌</div>
+            <div class="v1-cat-info">
+              <div class="v1-cat-name">Transport</div>
+              <div class="v1-cat-sub">8 transactions</div>
+            </div>
+            <div class="v1-cat-amount">12 500 FCFA</div>
+          </div>
+          <div class="v1-cat-item">
+            <div class="v1-cat-icon" style="background: rgba(52, 211, 153, 0.12);">💊</div>
+            <div class="v1-cat-info">
+              <div class="v1-cat-name">Santé</div>
+              <div class="v1-cat-sub">3 transactions</div>
+            </div>
+            <div class="v1-cat-amount">7 200 FCFA</div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="v1-cta">
+          <span class="v1-cta-icon">＋</span>
+          <span>Ajouter une dépense</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Token reference -->
+    <div class="token-list">
+      <div><span class="tl-label">background</span><span class="tl-hex">#0D0F1E</span></div>
+      <div><span class="tl-label">surface</span><span class="tl-hex">#181B33</span></div>
+      <div><span class="tl-label">accentPrimary</span><span class="tl-hex">#6B5CFF</span></div>
+      <div><span class="tl-label">accentSecondary</span><span class="tl-hex">#9D93FF</span></div>
+      <div><span class="tl-label">textPrimary</span><span class="tl-hex">#FFFFFF</span></div>
+      <div><span class="tl-label">textSecondary</span><span class="tl-hex">#9B9EC8</span></div>
+      <div><span class="tl-label">success</span><span class="tl-hex">#34D399</span></div>
+      <div><span class="tl-label">danger</span><span class="tl-hex">#F87171</span></div>
+      <div><span class="tl-label">border</span><span class="tl-hex">#252849</span></div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================
+       VARIATION 2 — INDIGO DAKAR
+       ====================================================== -->
+  <div class="variation-col">
+    <h2>2. Indigo Dakar</h2>
+    <p class="register">Registre : Premium local — profondeur africaine, cuivre chaleureux</p>
+
+    <!-- Token chips -->
+    <div class="token-grid">
+      <div class="token-chip">
+        <div class="swatch v2-bg"></div>
+        <div class="token-name">Background</div>
+        <div class="token-hex">#080A16</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v2-surface"></div>
+        <div class="token-name">Surface</div>
+        <div class="token-hex">#12163A</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v2-accent"></div>
+        <div class="token-name">Accent 1</div>
+        <div class="token-hex">#7B6FFF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v2-accent2"></div>
+        <div class="token-name">Cuivre FCFA</div>
+        <div class="token-hex">#E8A44A</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v2-text-pri"></div>
+        <div class="token-name">Texte Pri.</div>
+        <div class="token-hex">#F0EFFF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v2-text-sec"></div>
+        <div class="token-name">Texte Sec.</div>
+        <div class="token-hex">#8A8FBF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v2-success"></div>
+        <div class="token-name">Positif</div>
+        <div class="token-hex">#2ECC8A</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v2-danger"></div>
+        <div class="token-name">Négatif</div>
+        <div class="token-hex">#FF6B6B</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v2-border"></div>
+        <div class="token-name">Bordure</div>
+        <div class="token-hex">#1E2450</div>
+      </div>
+    </div>
+
+    <!-- Phone UI mockup -->
+    <div class="phone-frame">
+      <div class="v2-phone">
+        <!-- Top bar -->
+        <div class="v2-topbar">
+          <div>
+            <div class="v2-greeting">Bonjour, Aminata 👋</div>
+            <div class="v2-app-name">GestBud</div>
+          </div>
+          <div class="v2-avatar">AK</div>
+        </div>
+
+        <!-- Balance card -->
+        <div class="v2-balance-card">
+          <div class="v2-balance-label">Solde total</div>
+          <div class="v2-balance-amount">245 800</div>
+          <div class="v2-balance-fcfa">FCFA · Franc CFA Ouest Africain</div>
+          <div class="v2-trend">
+            <span style="font-size:10px;">▲</span>
+            <span class="v2-trend-text">+3,2 % ce mois</span>
+          </div>
+        </div>
+
+        <!-- Section dépenses -->
+        <div class="v2-section-title">Dépenses par catégorie</div>
+        <div class="v2-cat-list">
+          <div class="v2-cat-item">
+            <div class="v2-cat-icon" style="background: rgba(232, 164, 74, 0.15);">🛒</div>
+            <div class="v2-cat-info">
+              <div class="v2-cat-name">Alimentation</div>
+              <div class="v2-cat-sub">14 transactions</div>
+            </div>
+            <div class="v2-cat-amount">38 000 FCFA</div>
+          </div>
+          <div class="v2-cat-item">
+            <div class="v2-cat-icon" style="background: rgba(123, 111, 255, 0.15);">🚌</div>
+            <div class="v2-cat-info">
+              <div class="v2-cat-name">Transport</div>
+              <div class="v2-cat-sub">8 transactions</div>
+            </div>
+            <div class="v2-cat-amount">12 500 FCFA</div>
+          </div>
+          <div class="v2-cat-item">
+            <div class="v2-cat-icon" style="background: rgba(46, 204, 138, 0.12);">💊</div>
+            <div class="v2-cat-info">
+              <div class="v2-cat-name">Santé</div>
+              <div class="v2-cat-sub">3 transactions</div>
+            </div>
+            <div class="v2-cat-amount">7 200 FCFA</div>
+          </div>
+        </div>
+
+        <!-- Indicateur négatif -->
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:14px; padding: 8px 12px; background: rgba(255,107,107,0.08); border-radius:10px; border: 1px solid rgba(255,107,107,0.2);">
+          <span style="font-size:14px;">⚠</span>
+          <span style="font-size:11px; color: #FF6B6B; font-weight:600;">Budget alimentation dépassé de 3 000 FCFA</span>
+        </div>
+
+        <!-- CTA -->
+        <div class="v2-cta">
+          <span style="font-size:18px; font-weight:700;">＋</span>
+          <span>Ajouter une dépense</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Token reference -->
+    <div class="token-list">
+      <div><span class="tl-label">background</span><span class="tl-hex">#080A16</span></div>
+      <div><span class="tl-label">surface</span><span class="tl-hex">#12163A</span></div>
+      <div><span class="tl-label">accentPrimary</span><span class="tl-hex">#7B6FFF</span></div>
+      <div><span class="tl-label">accentCopper</span><span class="tl-hex">#E8A44A</span></div>
+      <div><span class="tl-label">textPrimary</span><span class="tl-hex">#F0EFFF</span></div>
+      <div><span class="tl-label">textSecondary</span><span class="tl-hex">#8A8FBF</span></div>
+      <div><span class="tl-label">success</span><span class="tl-hex">#2ECC8A</span></div>
+      <div><span class="tl-label">danger</span><span class="tl-hex">#FF6B6B</span></div>
+      <div><span class="tl-label">border</span><span class="tl-hex">#1E2450</span></div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================
+       VARIATION 3 — KORA GOLD
+       ====================================================== -->
+  <div class="variation-col">
+    <h2>3. Kora Gold</h2>
+    <p class="register">Registre : Chaleur ouest-africaine — or et ambre dans un écrin sombre</p>
+
+    <!-- Token chips -->
+    <div class="token-grid">
+      <div class="token-chip">
+        <div class="swatch v3-bg"></div>
+        <div class="token-name">Background</div>
+        <div class="token-hex">#0E1018</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v3-surface"></div>
+        <div class="token-name">Surface</div>
+        <div class="token-hex">#181C2E</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v3-accent"></div>
+        <div class="token-name">Or primaire</div>
+        <div class="token-hex">#F5A623</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v3-accent2"></div>
+        <div class="token-name">Or lumineux</div>
+        <div class="token-hex">#FFBC40</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v3-text-pri"></div>
+        <div class="token-name">Texte Pri.</div>
+        <div class="token-hex">#FFFFFF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v3-text-sec"></div>
+        <div class="token-name">Texte Sec.</div>
+        <div class="token-hex">#A0A4B8</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v3-success"></div>
+        <div class="token-name">Positif</div>
+        <div class="token-hex">#4ADE80</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v3-danger"></div>
+        <div class="token-name">Négatif</div>
+        <div class="token-hex">#FB7185</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v3-border"></div>
+        <div class="token-name">Bordure</div>
+        <div class="token-hex">#22273D</div>
+      </div>
+    </div>
+
+    <!-- Phone UI mockup -->
+    <div class="phone-frame">
+      <div class="v3-phone">
+        <!-- Top bar -->
+        <div class="v3-topbar">
+          <div>
+            <div class="v3-greeting">Bonjour, Kofi 👋</div>
+            <div class="v3-app-name">GestBud</div>
+          </div>
+          <div class="v3-avatar">KO</div>
+        </div>
+
+        <!-- Balance card -->
+        <div class="v3-balance-card">
+          <div class="v3-gold-bar"></div>
+          <div class="v3-balance-label">Solde total</div>
+          <div class="v3-balance-amount">245 800</div>
+          <div class="v3-balance-fcfa">FCFA · Franc CFA</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="v3-trend">
+              <span style="font-size:10px; color:#4ADE80;">▲</span>
+              <span class="v3-trend-text">+3,2 % ce mois</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section dépenses -->
+        <div class="v3-section-title">Dépenses par catégorie</div>
+        <div class="v3-cat-list">
+          <div class="v3-cat-item">
+            <div class="v3-cat-icon" style="background: rgba(245, 166, 35, 0.15);">🛒</div>
+            <div class="v3-cat-info">
+              <div class="v3-cat-name">Alimentation</div>
+              <div class="v3-cat-sub">14 transactions</div>
+            </div>
+            <div class="v3-cat-amount">38 000 FCFA</div>
+          </div>
+          <div class="v3-cat-item">
+            <div class="v3-cat-icon" style="background: rgba(255, 188, 64, 0.12);">🚌</div>
+            <div class="v3-cat-info">
+              <div class="v3-cat-name">Transport</div>
+              <div class="v3-cat-sub">8 transactions</div>
+            </div>
+            <div class="v3-cat-amount">12 500 FCFA</div>
+          </div>
+          <div class="v3-cat-item">
+            <div class="v3-cat-icon" style="background: rgba(74, 222, 128, 0.10);">💊</div>
+            <div class="v3-cat-info">
+              <div class="v3-cat-name">Santé</div>
+              <div class="v3-cat-sub">3 transactions</div>
+            </div>
+            <div class="v3-cat-amount">7 200 FCFA</div>
+          </div>
+        </div>
+
+        <!-- Indicateur positif -->
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:14px; padding: 8px 12px; background: rgba(74,222,128,0.08); border-radius:10px; border: 1px solid rgba(74,222,128,0.18);">
+          <span style="font-size:14px;">✓</span>
+          <span style="font-size:11px; color: #4ADE80; font-weight:600;">Budget respecté — économie de 5 200 FCFA</span>
+        </div>
+
+        <!-- CTA -->
+        <div class="v3-cta">
+          <span style="font-size:18px; font-weight:700;">＋</span>
+          <span>Ajouter une dépense</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Token reference -->
+    <div class="token-list">
+      <div><span class="tl-label">background</span><span class="tl-hex">#0E1018</span></div>
+      <div><span class="tl-label">surface</span><span class="tl-hex">#181C2E</span></div>
+      <div><span class="tl-label">accentGold</span><span class="tl-hex">#F5A623</span></div>
+      <div><span class="tl-label">accentGoldLight</span><span class="tl-hex">#FFBC40</span></div>
+      <div><span class="tl-label">textPrimary</span><span class="tl-hex">#FFFFFF</span></div>
+      <div><span class="tl-label">textSecondary</span><span class="tl-hex">#A0A4B8</span></div>
+      <div><span class="tl-label">success</span><span class="tl-hex">#4ADE80</span></div>
+      <div><span class="tl-label">danger</span><span class="tl-hex">#FB7185</span></div>
+      <div><span class="tl-label">border</span><span class="tl-hex">#22273D</span></div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================
+       VARIATION 4 — MINUIT VERT
+       ====================================================== -->
+  <div class="variation-col">
+    <h2>4. Minuit Vert</h2>
+    <p class="register">Registre : Confiance financière — croissance, stabilité, nature</p>
+
+    <!-- Token chips -->
+    <div class="token-grid">
+      <div class="token-chip">
+        <div class="swatch v4-bg"></div>
+        <div class="token-name">Background</div>
+        <div class="token-hex">#0A1018</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v4-surface"></div>
+        <div class="token-name">Surface</div>
+        <div class="token-hex">#101C24</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v4-accent"></div>
+        <div class="token-name">Émeraude</div>
+        <div class="token-hex">#00C897</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v4-accent2"></div>
+        <div class="token-name">Émeraude 2</div>
+        <div class="token-hex">#00A87C</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v4-text-pri"></div>
+        <div class="token-name">Texte Pri.</div>
+        <div class="token-hex">#E8F5F1</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v4-text-sec"></div>
+        <div class="token-name">Texte Sec.</div>
+        <div class="token-hex">#6B9E90</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v4-success"></div>
+        <div class="token-name">Positif</div>
+        <div class="token-hex">#00C897</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v4-danger"></div>
+        <div class="token-name">Négatif</div>
+        <div class="token-hex">#FF5F5F</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v4-border"></div>
+        <div class="token-name">Bordure</div>
+        <div class="token-hex">#152030</div>
+      </div>
+    </div>
+
+    <!-- Phone UI mockup -->
+    <div class="phone-frame">
+      <div class="v4-phone">
+        <!-- Top bar -->
+        <div class="v4-topbar">
+          <div>
+            <div class="v4-greeting">Bonjour, Seydou 👋</div>
+            <div class="v4-app-name">GestBud</div>
+          </div>
+          <div class="v4-avatar">SE</div>
+        </div>
+
+        <!-- Balance card -->
+        <div class="v4-balance-card">
+          <div class="v4-balance-label">Solde total</div>
+          <div class="v4-balance-amount">245 800</div>
+          <div class="v4-balance-fcfa">FCFA</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="v4-trend">
+              <span style="font-size:10px; color:#00C897;">▲</span>
+              <span class="v4-trend-text">+3,2 % ce mois</span>
+            </div>
+          </div>
+          <!-- Sparkline -->
+          <div class="v4-sparkline">
+            <div class="v4-bar" style="height: 40%;"></div>
+            <div class="v4-bar" style="height: 55%;"></div>
+            <div class="v4-bar" style="height: 38%;"></div>
+            <div class="v4-bar" style="height: 62%;"></div>
+            <div class="v4-bar" style="height: 50%;"></div>
+            <div class="v4-bar" style="height: 70%;"></div>
+            <div class="v4-bar" style="height: 80%;"></div>
+            <div class="v4-bar active" style="height: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Section dépenses -->
+        <div class="v4-section-title">Dépenses par catégorie</div>
+        <div class="v4-cat-list">
+          <div class="v4-cat-item">
+            <div class="v4-cat-icon" style="background: rgba(0, 200, 151, 0.12);">🛒</div>
+            <div class="v4-cat-info">
+              <div class="v4-cat-name">Alimentation</div>
+              <div class="v4-cat-sub">14 transactions</div>
+            </div>
+            <div class="v4-cat-amount">38 000 FCFA</div>
+          </div>
+          <div class="v4-cat-item">
+            <div class="v4-cat-icon" style="background: rgba(0, 168, 124, 0.12);">🚌</div>
+            <div class="v4-cat-info">
+              <div class="v4-cat-name">Transport</div>
+              <div class="v4-cat-sub">8 transactions</div>
+            </div>
+            <div class="v4-cat-amount">12 500 FCFA</div>
+          </div>
+          <div class="v4-cat-item">
+            <div class="v4-cat-icon" style="background: rgba(107, 158, 144, 0.12);">💊</div>
+            <div class="v4-cat-info">
+              <div class="v4-cat-name">Santé</div>
+              <div class="v4-cat-sub">3 transactions</div>
+            </div>
+            <div class="v4-cat-amount">7 200 FCFA</div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="v4-cta">
+          <span style="font-size:18px; font-weight:700;">＋</span>
+          <span>Ajouter une dépense</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Token reference -->
+    <div class="token-list">
+      <div><span class="tl-label">background</span><span class="tl-hex">#0A1018</span></div>
+      <div><span class="tl-label">surface</span><span class="tl-hex">#101C24</span></div>
+      <div><span class="tl-label">accentEmerald</span><span class="tl-hex">#00C897</span></div>
+      <div><span class="tl-label">accentEmerald2</span><span class="tl-hex">#00A87C</span></div>
+      <div><span class="tl-label">textPrimary</span><span class="tl-hex">#E8F5F1</span></div>
+      <div><span class="tl-label">textSecondary</span><span class="tl-hex">#6B9E90</span></div>
+      <div><span class="tl-label">success</span><span class="tl-hex">#00C897</span></div>
+      <div><span class="tl-label">danger</span><span class="tl-hex">#FF5F5F</span></div>
+      <div><span class="tl-label">border</span><span class="tl-hex">#152030</span></div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================
+       VARIATION 5 — ANTHRACITE PRO
+       ====================================================== -->
+  <div class="variation-col">
+    <h2>5. Anthracite Pro</h2>
+    <p class="register">Registre : Outil professionnel sobre — sans teinte bleue, fonctionnel, dense</p>
+
+    <!-- Token chips -->
+    <div class="token-grid">
+      <div class="token-chip">
+        <div class="swatch v5-bg"></div>
+        <div class="token-name">Background</div>
+        <div class="token-hex">#111214</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v5-surface"></div>
+        <div class="token-name">Surface</div>
+        <div class="token-hex">#1C1E21</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v5-accent"></div>
+        <div class="token-name">Accent 1</div>
+        <div class="token-hex">#7C6FFF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v5-accent2"></div>
+        <div class="token-name">Accent 2</div>
+        <div class="token-hex">#A899FF</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v5-text-pri"></div>
+        <div class="token-name">Texte Pri.</div>
+        <div class="token-hex">#F2F2F3</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v5-text-sec"></div>
+        <div class="token-name">Texte Sec.</div>
+        <div class="token-hex">#8A8C94</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v5-success"></div>
+        <div class="token-name">Positif</div>
+        <div class="token-hex">#3ECF8E</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v5-danger"></div>
+        <div class="token-name">Négatif</div>
+        <div class="token-hex">#F5666A</div>
+      </div>
+      <div class="token-chip">
+        <div class="swatch v5-border"></div>
+        <div class="token-name">Bordure</div>
+        <div class="token-hex">#2A2C30</div>
+      </div>
+    </div>
+
+    <!-- Phone UI mockup -->
+    <div class="phone-frame">
+      <div class="v5-phone">
+        <!-- Top bar -->
+        <div class="v5-topbar">
+          <div>
+            <div class="v5-greeting">30 juin 2026</div>
+            <div class="v5-app-name">GestBud</div>
+          </div>
+          <div class="v5-avatar">YA</div>
+        </div>
+
+        <!-- Balance card -->
+        <div class="v5-balance-card">
+          <div class="v5-balance-label">Solde disponible</div>
+          <div class="v5-balance-amount">245 800</div>
+          <div class="v5-balance-fcfa">Franc CFA (XOF)</div>
+          <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+            <div class="v5-trend">
+              <span style="font-size:9px; color:#3ECF8E;">▲</span>
+              <span class="v5-trend-text">+3,2 % ce mois</span>
+            </div>
+            <span style="font-size:10px; color: #8A8C94;">vs mois précédent</span>
+          </div>
+        </div>
+
+        <!-- Divider label -->
+        <div class="v5-section-title">Dépenses · juin 2026</div>
+
+        <!-- Section dépenses — grouped list style -->
+        <div class="v5-cat-list">
+          <div class="v5-cat-item">
+            <div class="v5-cat-icon" style="background: rgba(124, 111, 255, 0.12);">🛒</div>
+            <div class="v5-cat-info">
+              <div class="v5-cat-name">Alimentation</div>
+              <div class="v5-cat-sub">14 opérations · 62 % du budget</div>
+            </div>
+            <div class="v5-cat-amount">38 000 FCFA</div>
+          </div>
+          <div class="v5-cat-item">
+            <div class="v5-cat-icon" style="background: rgba(168, 153, 255, 0.10);">🚌</div>
+            <div class="v5-cat-info">
+              <div class="v5-cat-name">Transport</div>
+              <div class="v5-cat-sub">8 opérations · 20 % du budget</div>
+            </div>
+            <div class="v5-cat-amount">12 500 FCFA</div>
+          </div>
+          <div class="v5-cat-item">
+            <div class="v5-cat-icon" style="background: rgba(62, 207, 142, 0.10);">💊</div>
+            <div class="v5-cat-info">
+              <div class="v5-cat-name">Santé</div>
+              <div class="v5-cat-sub">3 opérations · 12 % du budget</div>
+            </div>
+            <div class="v5-cat-amount">7 200 FCFA</div>
+          </div>
+        </div>
+
+        <!-- Indicateur: solde négatif sur catégorie -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding: 8px 12px; background: #1C1E21; border-radius:8px; border: 1px solid #2A2C30;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:12px; color:#F5666A;">●</span>
+            <span style="font-size:11px; color: #8A8C94;">Total dépenses</span>
+          </div>
+          <span style="font-size:13px; font-weight:700; color: #F5666A; font-variant-numeric: tabular-nums;">− 57 700 FCFA</span>
+        </div>
+
+        <!-- CTA -->
+        <div class="v5-cta">
+          <span style="font-size:16px; font-weight:700;">＋</span>
+          <span>Ajouter une dépense</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Token reference -->
+    <div class="token-list">
+      <div><span class="tl-label">background</span><span class="tl-hex">#111214</span></div>
+      <div><span class="tl-label">surface</span><span class="tl-hex">#1C1E21</span></div>
+      <div><span class="tl-label">accentPrimary</span><span class="tl-hex">#7C6FFF</span></div>
+      <div><span class="tl-label">accentSecondary</span><span class="tl-hex">#A899FF</span></div>
+      <div><span class="tl-label">textPrimary</span><span class="tl-hex">#F2F2F3</span></div>
+      <div><span class="tl-label">textSecondary</span><span class="tl-hex">#8A8C94</span></div>
+      <div><span class="tl-label">success</span><span class="tl-hex">#3ECF8E</span></div>
+      <div><span class="tl-label">danger</span><span class="tl-hex">#F5666A</span></div>
+      <div><span class="tl-label">border</span><span class="tl-hex">#2A2C30</span></div>
+    </div>
+  </div>
+
+</div><!-- end .variations-row -->
+
+</body>
+</html>
