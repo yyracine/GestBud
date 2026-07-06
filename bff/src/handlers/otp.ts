@@ -50,8 +50,13 @@ async function handleSend(request: Request, env: Env): Promise<Response> {
     message: `Ton code GestBud : ${otp}. Valable 10 minutes.`,
   });
 
+  const atBaseUrl =
+    env.AFRICA_TALKING_USERNAME === 'sandbox'
+      ? 'https://api.sandbox.africastalking.com/version1/messaging'
+      : 'https://api.africastalking.com/version1/messaging';
+
   const atResponse = await fetch(
-    'https://api.africastalking.com/version1/messaging',
+    atBaseUrl,
     {
       method: 'POST',
       headers: {
@@ -74,8 +79,9 @@ async function handleSend(request: Request, env: Env): Promise<Response> {
   };
   const recipient = atData.SMSMessageData?.Recipients?.[0];
 
-  // Africa's Talking statusCode 101 = Success
-  if (recipient && recipient.statusCode !== 101) {
+  // Africa's Talking statusCode 100 = Processed, 101 = Sent (both indicate acceptance)
+  const AT_SUCCESS_CODES = [100, 101];
+  if (recipient && !AT_SUCCESS_CODES.includes(recipient.statusCode)) {
     console.error('[OTP] Africa\'s Talking delivery failed, statusCode:', recipient.statusCode);
     return json({ error: 'SMS delivery failed' }, 502);
   }

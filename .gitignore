@@ -53,3 +53,6 @@ bff/dist/
 
 # Claude Code skills (framework BMAD — à installer localement)
 .claude/
+
+# APK builds locaux (trop volumineux pour git)
+/releases/

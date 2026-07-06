@@ -1,7 +1,7 @@
 # GestBud — Résumé de session
 
 > **À lire en début de session. À mettre à jour en fin de session.**
-> Dernière mise à jour : 2026-07-05 (session 9)
+> Dernière mise à jour : 2026-07-06 (session 10)
 
 ---
 
@@ -271,7 +271,18 @@ Epic 5 entièrement terminé. Stories 5.1 · 5.2 · 5.3 toutes en statut review.
 - `bff/secrets.json` — secrets prod bulk (gitignorés)
 - `.gitignore` — ajout `bff/secrets.json`
 
-**Prochaine étape :** Tester le flow OTP end-to-end avec `flutter run --dart-define=BFF_URL=https://gestbud-bff-prod.racine-yao.workers.dev` puis build APK release.
+**Session 10 (2026-07-06) — test OTP end-to-end validé, sans frais réels :**
+
+- Bug fixé dans `bff/src/handlers/otp.ts` : le check de succès Africa's Talking n'acceptait que `statusCode === 101` ; `100` ("Processed") est aussi un succès.
+- Le solde AT de production est insuffisant (`statusCode 405`). Solution utilisée pour tester gratuitement : **mode Sandbox Africa's Talking**.
+  - `AFRICA_TALKING_USERNAME=sandbox` + clé API générée depuis l'app "sandbox" du dashboard AT (~5 min de propagation après génération).
+  - Le code route automatiquement vers `api.sandbox.africastalking.com` quand username = `sandbox`.
+  - Le SMS n'est jamais livré réellement (aucun coût) — le code OTP est visible dans le dashboard AT : Sandbox → SMS → Bulk Outbox.
+  - Flow complet validé via curl : `/otp/send` → succès, code lu dans l'outbox, `/otp/verify` → token retourné. ✅
+- Émulateur Android sur cette machine : le CPU (Celeron N5095A, pas d'AVX2) fait planter `netsimd.exe` sur les images API 31+. Utiliser une image **API 30 ou moins** (AVD `gestbud_test30` créé) pour avoir un émulateur stable avec réseau fonctionnel.
+- ⚠️ **Avant un build de prod réel** : remettre les secrets Cloudflare (`AFRICA_TALKING_USERNAME`/`AFRICA_TALKING_API_KEY`) sur les creds de production et recharger le solde AT — sinon les vrais OTP ne partiront pas.
+
+**Prochaine étape :** Recharger le compte Africa's Talking de prod (ou continuer les tests en sandbox), puis build APK release.
 
 ---
 
