@@ -46,6 +46,7 @@ app.*.map.json
 
 # BFF (Cloudflare Worker)
 bff/.dev.vars
+bff/secrets.json
 bff/node_modules/
 bff/.wrangler/
 bff/dist/

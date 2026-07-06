@@ -8,8 +8,8 @@ compatibility_flags = ["nodejs_compat"]
 # Remplacer les id ci-dessous par les vrais IDs retournés
 [[kv_namespaces]]
 binding = "OTP_STORE"
-id = "REPLACE_WITH_PROD_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+id = "1c049ec5ba3047e9bd98e6e931e781ca"
+preview_id = "53b9b865c317456787c1e535dc00ed95"
 
 [env.dev]
 name = "gestbud-bff-dev"
@@ -17,13 +17,15 @@ vars = {}
 
 [[env.dev.kv_namespaces]]
 binding = "OTP_STORE"
-id = "REPLACE_WITH_DEV_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+id = "516fdf60f2864832b85b748ec3cdc46f"
+preview_id = "53b9b865c317456787c1e535dc00ed95"
 
 [env.prod]
 name = "gestbud-bff-prod"
+workers_dev = true
+preview_urls = false
 vars = {}
 
 [[env.prod.kv_namespaces]]
 binding = "OTP_STORE"
-id = "REPLACE_WITH_PROD_KV_NAMESPACE_ID"
+id = "1c049ec5ba3047e9bd98e6e931e781ca"

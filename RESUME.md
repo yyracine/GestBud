@@ -1,7 +1,7 @@
 # GestBud — Résumé de session
 
 > **À lire en début de session. À mettre à jour en fin de session.**
-> Dernière mise à jour : 2026-07-05 (session 8)
+> Dernière mise à jour : 2026-07-05 (session 9)
 
 ---
 
@@ -243,6 +243,35 @@ Epic 5 entièrement terminé. Stories 5.1 · 5.2 · 5.3 toutes en statut review.
 - `AppDatabase.deleteCustomCategoryWithReassign(id)` via `transaction()` — reassign d'abord, delete ensuite (obligatoire car `PRAGMA foreign_keys = ON`)
 - `isDuplicate(name, existing, {String? excludeId})` — paramètre optionnel rétrocompatible ; en mode édition passer `excludeId: widget.initial?.id`
 - `_CategoryTile` → `ConsumerWidget` pour accéder à `ref` dans le handler async de suppression
+
+---
+
+## BFF — Déploiement prod (session 9)
+
+**URL prod :** `https://gestbud-bff-prod.racine-yao.workers.dev`
+
+| Route | Statut |
+|-------|--------|
+| `POST /otp/send` | ✅ déployé |
+| `POST /otp/verify` | ✅ déployé |
+| `POST /scan/receipt` | ✅ déployé |
+
+**Infrastructure Cloudflare :**
+- Worker : `gestbud-bff-prod` (account: racine-yao)
+- KV Namespace prod : `1c049ec5ba3047e9bd98e6e931e781ca` (OTP_STORE, TTL 10 min)
+- KV Namespace dev : `516fdf60f2864832b85b748ec3cdc46f`
+- KV Preview : `53b9b865c317456787c1e535dc00ed95`
+- 4 secrets injectés : `AFRICA_TALKING_API_KEY`, `AFRICA_TALKING_USERNAME`, `MINDEE_API_KEY`, `MISTRAL_API_KEY`
+
+**Fichiers créés/modifiés (session 9) :**
+- `bff/package.json` — créé (wrangler + @cloudflare/workers-types)
+- `bff/tsconfig.json` — créé
+- `bff/wrangler.toml` — KV IDs réels + `workers_dev = true` prod
+- `bff/.dev.vars` — secrets locaux (gitignorés)
+- `bff/secrets.json` — secrets prod bulk (gitignorés)
+- `.gitignore` — ajout `bff/secrets.json`
+
+**Prochaine étape :** Tester le flow OTP end-to-end avec `flutter run --dart-define=BFF_URL=https://gestbud-bff-prod.racine-yao.workers.dev` puis build APK release.
 
 ---
 
